@@ -27,9 +27,7 @@ router.get('/:userId/getCart', async (req, res, next) => {
         orderSubmittedDate: null
       }
     })
-    console.log('the existing cart orderId: ', existingCart.dataValues.id)
     if (existingCart) {
-      console.log('the order: ', existingCart.dataValues.id)
       res.json(existingCart)
     } else {
       res.status(404).send('No existing cart for this user.')
