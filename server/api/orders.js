@@ -115,14 +115,20 @@ router.delete('/remove', async (req, res, next) => {
     let OrderToItemInstance = null
     //Checks to see if the product is currently on this order
     if (existingOrderToItem) {
-      //subtracts the new quantity to the current quatity when the product is already on the order
-      OrderToItemInstance = await OrderToItem.decrement('quantity', {
-        by: req.body.quantity,
-        where: {
-          orderId: req.body.orderId,
-          productId: req.body.productId
-        }
-      })
+      if (existingOrderToItem.quantity - req.body.quantity < 0) {
+        res.send(
+          'Cannot remove more of this product than there is left in the cart.'
+        )
+      } else {
+        //subtracts the new quantity to the current quatity when the product is already on the order
+        OrderToItemInstance = await OrderToItem.decrement('quantity', {
+          by: req.body.quantity,
+          where: {
+            orderId: req.body.orderId,
+            productId: req.body.productId
+          }
+        })
+      }
     } else {
       //Adds the product to the order with the quantity passed in
       res.status(404).send('Nothing to remove')
