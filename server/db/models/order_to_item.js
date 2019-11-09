@@ -5,7 +5,9 @@ const OrderToItem = db.define('order_to_item', {
   quantity: {
     type: Sequelize.INTEGER,
     validate: {
-      min: 0
+      min: {
+        args: 0
+      }
     }
   }
 })

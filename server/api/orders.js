@@ -19,21 +19,17 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId/getCart', async (req, res, next) => {
   try {
-    console.log('The req params is', req.params, 'the body is', req.body)
-
     let existingCart = await Order.findOne({
       where: {
         userId: req.params.userId,
         orderSubmittedDate: null
       }
     })
-    console.log('CART>>>>>>,', existingCart)
     existingCart = await Order.findAll({
       includes: [
         {model: Product, through: {where: {id: existingCart.dataValues.id}}}
       ]
     })
-    console.log('the existing cart is: ', existingCart)
     if (existingCart) {
       res.json(existingCart)
     } else {
@@ -86,13 +82,60 @@ router.post('/add', async (req, res, next) => {
       OrderToItemInstance = await OrderToItem.create(req.body)
     }
 
-    //Checks to see that the OrderItem was
+    //Checks to see that the OrderToItem instance was either created or its quantity
+    //was increased.
     if (OrderToItemInstance) {
+      //If it was we increase the total price by the new product's price
+      //times the amount added
       OrderToItemInstance = OrderToItemInstance[0][0][0]
       const newProduct = await Product.findByPk(OrderToItemInstance.productId)
-      console.log('newProduct', newProduct)
       const updatedOrder = await Order.increment('totalPrice', {
         by: newProduct.price * OrderToItemInstance.quantity,
+        where: {
+          id: OrderToItemInstance.orderId
+        }
+      })
+      res.json(updatedOrder[0][0][0].totalPrice)
+    } else {
+      res.status(500).send('Adding product failed.')
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
+router.delete('/remove', async (req, res, next) => {
+  try {
+    const existingOrderToItem = await OrderToItem.findOne({
+      where: {
+        productId: req.body.productId,
+        orderId: req.body.orderId
+      }
+    })
+    let OrderToItemInstance = null
+    //Checks to see if the product is currently on this order
+    if (existingOrderToItem) {
+      //subtracts the new quantity to the current quatity when the product is already on the order
+      OrderToItemInstance = await OrderToItem.decrement('quantity', {
+        by: req.body.quantity,
+        where: {
+          orderId: req.body.orderId,
+          productId: req.body.productId
+        }
+      })
+    } else {
+      //Adds the product to the order with the quantity passed in
+      res.status(404).send('Nothing to remove')
+    }
+    //Checks to see that the OrderToItem instance was either created or its quantity
+    //was decreased.
+    if (OrderToItemInstance) {
+      //If it was we decrease the total price by the new product's price
+      //times the amount added.
+      OrderToItemInstance = OrderToItemInstance[0][0][0]
+      const newProduct = await Product.findByPk(OrderToItemInstance.productId)
+      const updatedOrder = await Order.decrement('totalPrice', {
+        by: newProduct.price * req.body.quantity,
         where: {
           id: OrderToItemInstance.orderId
         }
