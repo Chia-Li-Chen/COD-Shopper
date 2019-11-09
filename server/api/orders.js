@@ -21,11 +21,17 @@ router.get('/:userId/getCart', async (req, res, next) => {
   try {
     console.log('The req params is', req.params, 'the body is', req.body)
 
-    const existingCart = await Order.findOne({
+    let existingCart = await Order.findOne({
       where: {
         userId: req.params.userId,
         orderSubmittedDate: null
       }
+    })
+    console.log('CART>>>>>>,', existingCart)
+    existingCart = await Order.findAll({
+      includes: [
+        {model: Product, through: {where: {id: existingCart.dataValues.id}}}
+      ]
     })
     console.log('the existing cart is: ', existingCart)
     if (existingCart) {
