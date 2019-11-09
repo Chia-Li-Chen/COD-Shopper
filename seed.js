@@ -5,6 +5,7 @@ const db = require('./server/db/index')
 const {User} = require('./server/db/models/models_index')
 const {Product} = require('./server/db/models/models_index')
 const {Order} = require('./server/db/models/models_index')
+const {OrderToItem} = require('./server/db/models/models_index')
 // OrderItems
 //   -
 //   orderId int FK > - Order.orderId
@@ -181,6 +182,34 @@ const orders = [
     userId: 2,
     orderSubmittedDate: null,
     totalPrice: 20000
+  }
+]
+
+const orderProducts = [
+  {
+    orderId: 2,
+    productId: 2,
+    quantity: 3
+  },
+  {
+    orderId: 2,
+    productId: 3,
+    quantity: 2
+  },
+  {
+    orderId: 2,
+    productId: 2,
+    quantity: 1
+  },
+  {
+    orderId: 2,
+    productId: 4,
+    quantity: 1
+  },
+  {
+    orderId: 2,
+    productId: 5,
+    quantity: 2
   }
 ]
 
@@ -441,6 +470,13 @@ const seed = async () => {
         return Product.create(product)
       })
     )
+
+    await Promise.all(
+      orderProducts.map(orderProduct => {
+        return OrderToItem.create(orderProduct)
+      })
+    )
+
     // console.log(green('Seeding success!'))
     console.log('Seeding success!')
     db.close()
