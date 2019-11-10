@@ -655,6 +655,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -677,9 +695,9 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 var defaultState = {
   totalPrice: 0,
-  itemQuantity: {},
+  products: [],
   showTotalPrice: 0,
-  itemPrice: {}
+  orderToItem: []
 };
 
 var OrderProducts =
@@ -695,7 +713,7 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(OrderProducts).call(this, props));
     _this.state = defaultState;
     _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
-    _this.showTotalPrice = _this.showTotalPrice.bind(_assertThisInitialized(_this));
+    _this.calcTotalPrice = _this.calcTotalPrice.bind(_assertThisInitialized(_this));
     _this.increment = _this.increment.bind(_assertThisInitialized(_this));
     _this.decrement = _this.decrement.bind(_assertThisInitialized(_this));
     return _this;
@@ -703,16 +721,42 @@ function (_Component) {
 
   _createClass(OrderProducts, [{
     key: "componentDidMount",
-    value: function componentDidMount() {
-      this.setState({
-        totalPrice: this.props.order[0].totalPrice
-      });
-      this.setState({
-        itemQuantity: this.props.order[0].products
-      }); // this.props.order[0].products.map(product => {
-      //   this.setState({totalPrice:[product.id]: product.quantity})
-      // })
-    }
+    value: function () {
+      var _componentDidMount = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.props.getOrderItem(this.props.order[0].id);
+
+              case 2:
+                this.setState({
+                  totalPrice: this.props.order[0].totalPrice
+                });
+                this.setState({
+                  products: this.props.order[0].products
+                });
+                this.setState({
+                  showTotalPrice: this.props.order[0].totalPrice
+                });
+
+              case 5:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function componentDidMount() {
+        return _componentDidMount.apply(this, arguments);
+      }
+
+      return componentDidMount;
+    }()
   }, {
     key: "handleSubmit",
     value: function handleSubmit(event) {
@@ -720,14 +764,44 @@ function (_Component) {
       this.props.updateCart(this.state);
     }
   }, {
-    key: "showTotalPrice",
-    value: function showTotalPrice() {}
+    key: "calcTotalPrice",
+    value: function calcTotalPrice() {
+      console.log('<<<<<<this.state.products: ', this.state.products);
+      var totalPriceShown = this.state.products.reduce(function (acc, product) {
+        var subtotal = product.price * product.order_to_item.quantity;
+        return acc + subtotal;
+      }, 0);
+      console.log('<<<<<<<<totalPrice: ', totalPriceShown);
+      this.setState({
+        showTotalPrice: totalPriceShown
+      });
+    }
   }, {
     key: "increment",
-    value: function increment() {}
+    value: function increment(productId) {}
   }, {
     key: "decrement",
-    value: function decrement(productId) {}
+    value: function decrement(productId) {
+      var productToUpdate = this.state.products.filter(function (product) {
+        return product.id === productId;
+      });
+      var quantity = productToUpdate[0].order_to_item.quantity;
+      var price = productToUpdate[0].price;
+      quantity = quantity < 1 ? quantity : quantity - 1;
+      price = price * quantity;
+      this.setState({
+        someProperty: _objectSpread({}, this.state.someProperty, {
+          flag: false
+        })
+      });
+      this.setState({
+        products: _toConsumableArray(this.state.products)
+      });
+      this.calcTotalPrice();
+      console.log('price: ', price);
+      console.log('quantity: ', quantity);
+      console.log('productToUpdate: ', productToUpdate);
+    }
   }, {
     key: "render",
     value: function render() {
@@ -736,10 +810,10 @@ function (_Component) {
       console.log('this.state: ', this.state);
 
       if (this.props.order) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.totalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.showTotalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
           type: "button",
           className: "checkout"
-        }, "Save"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, this.props.order[0].products.map(function (product) {
+        }, "Save"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, this.state.products.map(function (product) {
           return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
             key: product.id
           }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -765,14 +839,19 @@ function (_Component) {
             type: "button",
             name: "decrease",
             value: "-",
-            onClick: _this2.decrement(product.id)
+            onClick: function onClick() {
+              _this2.decrement(product.id);
+            }
           }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
             type: "button",
             name: "increase",
-            value: "+"
+            value: "+",
+            onClick: function onClick() {
+              _this2.increment(product.id);
+            }
           }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
             className: "productPrice"
-          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100))));
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Price per item: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Subtotal: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price * product.order_to_item.quantity / 100))));
         })));
       } else {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your cart is empty ");
@@ -793,6 +872,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     updateCart: function updateCart(state) {
       dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
+    },
+    getOrderItem: function getOrderItem(orderId) {
+      dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(orderId));
     }
   };
 };
@@ -1305,7 +1387,7 @@ socket.on('connect', function () {
 /*!*******************************!*\
   !*** ./client/store/index.js ***!
   \*******************************/
-/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, createCart, addToCart */
+/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, getOrderItem, createCart, addToCart */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1332,6 +1414,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "fetchProduct", function() { return _product__WEBPACK_IMPORTED_MODULE_5__["fetchProduct"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getCart"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getOrderItem"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["createCart"]; });
 
@@ -1364,12 +1448,13 @@ var store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, m
 /*!*******************************!*\
   !*** ./client/store/order.js ***!
   \*******************************/
-/*! exports provided: getCart, createCart, addToCart, default */
+/*! exports provided: getCart, getOrderItem, createCart, addToCart, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return getCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return createCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return addToCart; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
@@ -1392,6 +1477,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 var CREATE_CART = 'CREATE_CART';
 var ADD_TO_CART = 'ADD_TO_CART';
 var GET_CART = 'GET_CART';
+var GET_ORDERITEM = 'GET_ORDERITEM';
 /**
  * INITIAL STATE
  */
@@ -1419,6 +1505,13 @@ var getCartAction = function getCartAction(orderProducts) {
   return {
     type: GET_CART,
     orderProducts: orderProducts
+  };
+};
+
+var getOrderItemAction = function getOrderItemAction(orderItems) {
+  return {
+    type: GET_ORDERITEM,
+    orderItems: orderItems
   };
 };
 /**
@@ -1467,7 +1560,7 @@ var getCart = function getCart(userId) {
     }()
   );
 };
-var createCart = function createCart(userId) {
+var getOrderItem = function getOrderItem(orderId) {
   return (
     /*#__PURE__*/
     function () {
@@ -1481,13 +1574,11 @@ var createCart = function createCart(userId) {
               case 0:
                 _context2.prev = 0;
                 _context2.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/orders/", {
-                  userId: userId
-                });
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems", orderId);
 
               case 3:
                 response = _context2.sent;
-                dispatch(createCartAction(response.data));
+                dispatch(getOrderItemAction(response.data));
                 _context2.next = 10;
                 break;
 
@@ -1510,7 +1601,7 @@ var createCart = function createCart(userId) {
     }()
   );
 };
-var addToCart = function addToCart() {
+var createCart = function createCart(userId) {
   return (
     /*#__PURE__*/
     function () {
@@ -1524,11 +1615,13 @@ var addToCart = function addToCart() {
               case 0:
                 _context3.prev = 0;
                 _context3.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orderstoitems/');
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/orders/", {
+                  userId: userId
+                });
 
               case 3:
                 response = _context3.sent;
-                dispatch(addToCartAction(response.data));
+                dispatch(createCartAction(response.data));
                 _context3.next = 10;
                 break;
 
@@ -1551,6 +1644,47 @@ var addToCart = function addToCart() {
     }()
   );
 };
+var addToCart = function addToCart() {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref4 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee4(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.prev = 0;
+                _context4.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orderstoitems/');
+
+              case 3:
+                response = _context4.sent;
+                dispatch(addToCartAction(response.data));
+                _context4.next = 10;
+                break;
+
+              case 7:
+                _context4.prev = 7;
+                _context4.t0 = _context4["catch"](0);
+                console.error(_context4.t0);
+
+              case 10:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, null, [[0, 7]]);
+      }));
+
+      return function (_x4) {
+        return _ref4.apply(this, arguments);
+      };
+    }()
+  );
+};
 /**
  * REDUCER
  */
@@ -1569,6 +1703,9 @@ var addToCart = function addToCart() {
 
     case GET_CART:
       return _objectSpread({}, state, {}, action.orderProducts);
+
+    case GET_ORDERITEM:
+      return _objectSpread({}, state, {}, action.orderItems);
 
     default:
       return state;

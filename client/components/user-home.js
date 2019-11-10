@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {createCart, getCart} from '../store'
+import {createCart, getCart, getOrderItem} from '../store'
 import OrderProducts from './order-products'
 
 /**
@@ -13,10 +13,17 @@ class UserHome extends React.Component {
     if (this.props.orderSubmittedDate !== null) {
       await this.props.createCart(this.props.userId)
     }
+    await this.props.getOrderItem(this.props.order.id)
   }
 
   render() {
     let order = this.props.orders[0]
+    console.log(
+      '>>>>>>>order sumbitted date and order id: ',
+      this.props.orderSubmittedDate,
+      ' and ',
+      this.props.order.id
+    )
     if (order) {
       return (
         <div>
@@ -53,7 +60,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => ({
   getCart: id => dispatch(getCart(id)),
-  createCart: id => dispatch(createCart(id))
+  createCart: id => dispatch(createCart(id)),
+  getOrderItem: id => dispatch(getOrderItem(id))
 })
 
 export default connect(mapState, mapDispatch)(UserHome)

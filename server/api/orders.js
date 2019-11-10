@@ -58,6 +58,21 @@ router.post('/', async (req, res, next) => {
   }
 })
 
+router.get('/orderItems', async (req, res, next) => {
+  try {
+    console.log('<<<<<<req.body: ', req.body)
+    const orderItems = await OrderToItem.findAll({
+      where: {
+        orderId: req.body
+      }
+    })
+    res.json(orderItems)
+  } catch (error) {
+    console.error(error)
+    next(error)
+  }
+})
+
 //Add product to order item table
 //Updating order with new total price
 router.post('/add', async (req, res, next) => {
