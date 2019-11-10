@@ -436,7 +436,7 @@ function (_React$Component) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return this.props.fetchProducts();
+                return this.props.getCart(this.props.user.id);
 
               case 2:
               case "end":
@@ -455,10 +455,11 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+      console.log('the products: ', this.props);
       var products = this.props.products;
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "all-products-body"
-      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, "All the products!"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, products.productList.map(function (product) {
+      }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h1", null, this.props.user.firstName, "'s Shopping Cart"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, products.productList.map(function (product) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
           key: product.id
         }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_3__["Link"], {
@@ -473,14 +474,16 @@ function (_React$Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
+    order: state.order,
+    user: state.user,
     products: state.products
   };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    fetchProducts: function fetchProducts() {
-      return dispatch(Object(_store_product__WEBPACK_IMPORTED_MODULE_1__["fetchProducts"])());
+    getCart: function getCart(userId) {
+      return dispatch(Object(_store_product__WEBPACK_IMPORTED_MODULE_1__["getCart"])(userId));
     }
   };
 };
@@ -921,8 +924,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
 /* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -944,6 +948,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
 
 
 
@@ -1006,7 +1011,20 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Welcome, ", this.props.email));
+      var order = this.props.orders[0];
+      console.log('<<<<<Order prop: ', this.props.order);
+
+      if (order) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Welcome, ", this.props.user.firstName), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your Shopping Cart: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, order.products.map(function (product) {
+          return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
+            key: product.id
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Link"], {
+            to: "/products/".concat(product.id)
+          }, product.name));
+        })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", order.totalPrice / 100, " "));
+      } else {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Welcome, ", this.props.user.firstName), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your Shopping Cart: "));
+      }
     }
   }]);
 
@@ -1019,30 +1037,31 @@ function (_React$Component) {
 
 var mapState = function mapState(state) {
   return {
+    user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate
+    orderSubmittedDate: state.order.orderSubmittedDate,
+    orders: state.order
   };
 };
 
 var mapDispatch = function mapDispatch(dispatch) {
   return {
     getCart: function getCart(id) {
-      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getCart"])(id));
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_4__["getCart"])(id));
     },
     createCart: function createCart(id) {
-      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["createCart"])(id));
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_4__["createCart"])(id));
     }
   };
 };
 
-/* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_2__["connect"])(mapState, mapDispatch)(UserHome));
+/* harmony default export */ __webpack_exports__["default"] = (Object(react_redux__WEBPACK_IMPORTED_MODULE_3__["connect"])(mapState, mapDispatch)(UserHome));
 /**
  * PROP TYPES
  */
 
-UserHome.propTypes = {
-  email: prop_types__WEBPACK_IMPORTED_MODULE_1___default.a.string
+UserHome.propTypes = {// email: PropTypes.string
 };
 
 /***/ }),
@@ -45476,7 +45495,7 @@ function warning(message) {
 /*!***************************************************************!*\
   !*** ./node_modules/react-router-dom/esm/react-router-dom.js ***!
   \***************************************************************/
-/*! exports provided: BrowserRouter, HashRouter, Link, NavLink, MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext */
+/*! exports provided: MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext, BrowserRouter, HashRouter, Link, NavLink */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
