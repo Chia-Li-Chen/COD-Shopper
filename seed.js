@@ -5,6 +5,7 @@ const db = require('./server/db/index')
 const {User} = require('./server/db/models/models_index')
 const {Product} = require('./server/db/models/models_index')
 const {Order} = require('./server/db/models/models_index')
+const {OrderToItem} = require('./server/db/models/models_index')
 // OrderItems
 //   -
 //   orderId int FK > - Order.orderId
@@ -420,6 +421,19 @@ const products = [
   }
 ]
 
+const cartItems = [
+  {
+    productId: 1,
+    orderId: 2,
+    quantity: 1
+  },
+  {
+    productId: 2,
+    orderId: 1,
+    quantity: 5
+  }
+]
+
 // seed your database here!
 const seed = async () => {
   try {
@@ -441,6 +455,13 @@ const seed = async () => {
         return Product.create(product)
       })
     )
+
+    await Promise.all(
+      cartItems.map(cartItem => {
+        return OrderToItem.create(cartItem)
+      })
+    )
+
     // console.log(green('Seeding success!'))
     console.log('Seeding success!')
     db.close()

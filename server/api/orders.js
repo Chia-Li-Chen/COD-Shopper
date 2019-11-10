@@ -19,21 +19,17 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId/getCart', async (req, res, next) => {
   try {
-    console.log('The req params is', req.params, 'the body is', req.body)
-
     let existingCart = await Order.findOne({
       where: {
         userId: req.params.userId,
         orderSubmittedDate: null
       }
     })
-    console.log('CART>>>>>>,', existingCart)
     existingCart = await Order.findAll({
       includes: [
         {model: Product, through: {where: {id: existingCart.dataValues.id}}}
       ]
     })
-    console.log('the existing cart is: ', existingCart)
     if (existingCart) {
       res.json(existingCart)
     } else {
@@ -86,11 +82,13 @@ router.post('/add', async (req, res, next) => {
       OrderToItemInstance = await OrderToItem.create(req.body)
     }
 
-    //Checks to see that the OrderItem was
+    //Checks to see that the OrderToItem instance was either created or its quantity
+    //was increased.
     if (OrderToItemInstance) {
+      //If it was we increase the total price by the new product's price
+      //times the amount added
       OrderToItemInstance = OrderToItemInstance[0][0][0]
       const newProduct = await Product.findByPk(OrderToItemInstance.productId)
-      console.log('newProduct', newProduct)
       const updatedOrder = await Order.increment('totalPrice', {
         by: newProduct.price * OrderToItemInstance.quantity,
         where: {
@@ -100,6 +98,26 @@ router.post('/add', async (req, res, next) => {
       res.json(updatedOrder[0][0][0].totalPrice)
     } else {
       res.status(500).send('Adding product failed.')
+    }
+  } catch (err) {
+    next(err)
+  }
+})
+
+//Deletes an ordertoitem record with the given id.
+//uses deleteitem path so it is not mistaken for deleting an entire cart.
+router.delete('/deleteitem', async (req, res, next) => {
+  try {
+    const deletedOrder = await OrderToItem.destroy({
+      where: {
+        productId: req.body.productId,
+        orderId: req.body.orderId
+      }
+    })
+    if (deletedOrder) {
+      res.send('Order deleted')
+    } else {
+      res.status(500).send('Order failed to delete.')
     }
   } catch (err) {
     next(err)
