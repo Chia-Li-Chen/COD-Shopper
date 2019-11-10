@@ -62,7 +62,12 @@ class OrderProducts extends Component {
                     <div className="productName">
                       <Link to={`/products/${product.id}`}>{product.name}</Link>
                       <div>
-                        <button type="button" className="deleteButton">
+                        <button
+                          type="button"
+                          value={product.id}
+                          onClick={this.props.deleteProductHandler}
+                          className="deleteButton"
+                        >
                           Delete
                         </button>
                       </div>
