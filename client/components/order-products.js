@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
-import {updateCart} from '../store'
+import {updateCart, getOrderItem} from '../store'
 
 const defaultState = {
   totalPrice: 0,
@@ -24,6 +24,7 @@ class OrderProducts extends Component {
     this.setState({totalPrice: this.props.order[0].totalPrice})
     this.setState({products: this.props.order[0].products})
     this.setState({showTotalPrice: this.props.order[0].totalPrice})
+    await this.props.getOrderItem(this.props.order[0].id)
   }
 
   handleSubmit(event) {
@@ -56,7 +57,7 @@ class OrderProducts extends Component {
   }
 
   render() {
-    console.log('this.state: ', this.state)
+    console.log('this.props: ', this.props.order[0].id)
     if (this.props.order) {
       return (
         <div>
@@ -132,7 +133,8 @@ const mapDispatchToProps = dispatch => {
   return {
     updateCart: state => {
       dispatch(updateCart(state))
-    }
+    },
+    getOrderItem: id => dispatch(getOrderItem(id))
   }
 }
 

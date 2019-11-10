@@ -655,20 +655,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -729,10 +715,6 @@ function (_Component) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
-                return this.props.getOrderItem(this.props.order[0].id);
-
-              case 2:
                 this.setState({
                   totalPrice: this.props.order[0].totalPrice
                 });
@@ -742,6 +724,8 @@ function (_Component) {
                 this.setState({
                   showTotalPrice: this.props.order[0].totalPrice
                 });
+                _context.next = 5;
+                return this.props.getOrderItem(this.props.order[0].id);
 
               case 5:
               case "end":
@@ -766,12 +750,10 @@ function (_Component) {
   }, {
     key: "calcTotalPrice",
     value: function calcTotalPrice() {
-      console.log('<<<<<<this.state.products: ', this.state.products);
       var totalPriceShown = this.state.products.reduce(function (acc, product) {
         var subtotal = product.price * product.order_to_item.quantity;
         return acc + subtotal;
       }, 0);
-      console.log('<<<<<<<<totalPrice: ', totalPriceShown);
       this.setState({
         showTotalPrice: totalPriceShown
       });
@@ -789,14 +771,6 @@ function (_Component) {
       var price = productToUpdate[0].price;
       quantity = quantity < 1 ? quantity : quantity - 1;
       price = price * quantity;
-      this.setState({
-        someProperty: _objectSpread({}, this.state.someProperty, {
-          flag: false
-        })
-      });
-      this.setState({
-        products: _toConsumableArray(this.state.products)
-      });
       this.calcTotalPrice();
       console.log('price: ', price);
       console.log('quantity: ', quantity);
@@ -807,7 +781,7 @@ function (_Component) {
     value: function render() {
       var _this2 = this;
 
-      console.log('this.state: ', this.state);
+      console.log('this.props: ', this.props.order[0].id);
 
       if (this.props.order) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.showTotalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
@@ -873,8 +847,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     updateCart: function updateCart(state) {
       dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
     },
-    getOrderItem: function getOrderItem(orderId) {
-      dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(orderId));
+    getOrderItem: function getOrderItem(id) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(id));
     }
   };
 };
@@ -1131,6 +1105,7 @@ function (_React$Component) {
     key: "render",
     value: function render() {
       var order = this.props.orders[0];
+      console.log('>>>>>>>order sumbitted date and order id: ', this.props.orderSubmittedDate, ' and ', this.props.orders[0]);
 
       if (order) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Welcome, ", this.props.user.firstName), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your Shopping Cart: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_order_products__WEBPACK_IMPORTED_MODULE_4__["default"], {
@@ -1154,6 +1129,7 @@ var mapState = function mapState(state) {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
+    orderId: state.order.id,
     orderSubmittedDate: state.order.orderSubmittedDate,
     orders: state.order
   };
@@ -1166,6 +1142,9 @@ var mapDispatch = function mapDispatch(dispatch) {
     },
     createCart: function createCart(id) {
       return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["createCart"])(id));
+    },
+    getOrderItem: function getOrderItem(id) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(id));
     }
   };
 };
@@ -1401,6 +1380,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./user */ "./client/store/user.js");
 /* harmony import */ var _product__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./product */ "./client/store/product.js");
 /* harmony import */ var _order__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./order */ "./client/store/order.js");
+/* harmony import */ var _orderItems__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./orderItems */ "./client/store/orderItems.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "me", function() { return _user__WEBPACK_IMPORTED_MODULE_4__["me"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "auth", function() { return _user__WEBPACK_IMPORTED_MODULE_4__["auth"]; });
@@ -1428,10 +1408,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 var reducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
   user: _user__WEBPACK_IMPORTED_MODULE_4__["default"],
   products: _product__WEBPACK_IMPORTED_MODULE_5__["default"],
-  order: _order__WEBPACK_IMPORTED_MODULE_6__["default"]
+  order: _order__WEBPACK_IMPORTED_MODULE_6__["default"],
+  orderItem: _orderItems__WEBPACK_IMPORTED_MODULE_7__["default"]
 });
 var middleware = Object(redux_devtools_extension__WEBPACK_IMPORTED_MODULE_3__["composeWithDevTools"])(Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"], Object(redux_logger__WEBPACK_IMPORTED_MODULE_1__["createLogger"])({
   collapsed: true
@@ -1574,7 +1556,7 @@ var getOrderItem = function getOrderItem(orderId) {
               case 0:
                 _context2.prev = 0;
                 _context2.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems", orderId);
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems/".concat(orderId));
 
               case 3:
                 response = _context2.sent;
@@ -1714,6 +1696,115 @@ var addToCart = function addToCart() {
 
 /***/ }),
 
+/***/ "./client/store/orderItems.js":
+/*!************************************!*\
+  !*** ./client/store/orderItems.js ***!
+  \************************************/
+/*! exports provided: getOrderItem, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+/*
+ * ACTION TYPES
+ */
+
+var GET_ORDERITEM = 'GET_ORDERITEM';
+/**
+ * INITIAL STATE
+ */
+
+var defaultOrderItem = {};
+/**
+ * ACTION CREATORS
+ */
+
+var getOrderItemAction = function getOrderItemAction(orderItems) {
+  return {
+    type: GET_ORDERITEM,
+    orderItems: orderItems
+  };
+};
+/**
+ * THUNK CREATORS
+ */
+
+
+var getOrderItem = function getOrderItem(orderId) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.prev = 0;
+                _context.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems/".concat(orderId));
+
+              case 3:
+                response = _context.sent;
+                dispatch(getOrderItemAction(response.data));
+                _context.next = 10;
+                break;
+
+              case 7:
+                _context.prev = 7;
+                _context.t0 = _context["catch"](0);
+                console.error(_context.t0);
+
+              case 10:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[0, 7]]);
+      }));
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }()
+  );
+};
+/**
+ * REDUCER
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultOrderItem;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  Object.freeze(state);
+
+  switch (action.type) {
+    case GET_ORDERITEM:
+      return _objectSpread({}, state, {}, action.orderItems);
+
+    default:
+      return state;
+  }
+});
+
+/***/ }),
+
 /***/ "./client/store/product.js":
 /*!*********************************!*\
   !*** ./client/store/product.js ***!
@@ -1749,8 +1840,7 @@ var FETCH_PRODUCT = 'FETCH_PRODUCT';
  */
 
 var initialState = {
-  productList: [],
-  cart: {}
+  productList: []
   /**
    * ACTION CREATORS
    */
@@ -45664,7 +45754,7 @@ function warning(message) {
 /*!***************************************************************!*\
   !*** ./node_modules/react-router-dom/esm/react-router-dom.js ***!
   \***************************************************************/
-/*! exports provided: BrowserRouter, HashRouter, Link, NavLink, MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext */
+/*! exports provided: MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext, BrowserRouter, HashRouter, Link, NavLink */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

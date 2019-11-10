@@ -13,7 +13,7 @@ class UserHome extends React.Component {
     if (this.props.orderSubmittedDate !== null) {
       await this.props.createCart(this.props.userId)
     }
-    await this.props.getOrderItem(this.props.order.id)
+    // await this.props.getOrderItem(this.props.order.id)
   }
 
   render() {
@@ -22,7 +22,7 @@ class UserHome extends React.Component {
       '>>>>>>>order sumbitted date and order id: ',
       this.props.orderSubmittedDate,
       ' and ',
-      this.props.order.id
+      this.props.orders[0]
     )
     if (order) {
       return (
@@ -53,6 +53,7 @@ const mapState = state => {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
+    orderId: state.order.id,
     orderSubmittedDate: state.order.orderSubmittedDate,
     orders: state.order
   }

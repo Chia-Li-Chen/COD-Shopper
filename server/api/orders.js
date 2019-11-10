@@ -58,12 +58,12 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-router.get('/orderItems', async (req, res, next) => {
+router.get('/orderItems/:orderId', async (req, res, next) => {
   try {
     console.log('<<<<<<req.body: ', req.body)
     const orderItems = await OrderToItem.findAll({
       where: {
-        orderId: req.body
+        orderId: req.params.orderId
       }
     })
     res.json(orderItems)
