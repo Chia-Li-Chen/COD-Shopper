@@ -57,7 +57,7 @@ const mapState = state => {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate,
+    orderSubmittedDate: state.order[0].orderSubmittedDate,
     orders: state.order
   }
 }

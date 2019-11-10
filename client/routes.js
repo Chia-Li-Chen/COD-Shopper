@@ -5,6 +5,7 @@ import PropTypes from 'prop-types'
 import {
   Login,
   Signup,
+  CreateAccount,
   UserHome,
   AllProducts,
   SingleProduct,
@@ -31,6 +32,7 @@ class Routes extends Component {
         <Route path="/products/:id" component={SingleProduct} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/signup" component={Signup} />
+        <Route exact path="/create-account" component={CreateAccount} />
         {/* Displays our Login component as a fallback */}
         {/* Will add switch for login */}
         {isLoggedIn && (
