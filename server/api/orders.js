@@ -25,6 +25,7 @@ router.get('/:userId/getCart', async (req, res, next) => {
         orderSubmittedDate: null
       }
     })
+
     existingCart = await Order.findAll({
       includes: [
         {model: Product, through: {where: {id: existingCart.dataValues.id}}}
