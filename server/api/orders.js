@@ -104,51 +104,17 @@ router.post('/add', async (req, res, next) => {
   }
 })
 
-router.delete('/remove', async (req, res, next) => {
+//Deletes an ordertoitem record with the given id.
+//uses deleteitem path so it is not mistaken for deleting an entire cart.
+router.delete('/deleteitem/:cartItemId', async (req, res, next) => {
   try {
-    const existingOrderToItem = await OrderToItem.findOne({
-      where: {
-        productId: req.body.productId,
-        orderId: req.body.orderId
-      }
+    const deletedOrder = await Order.destroy({
+      where: {id: req.params.cartItemId}
     })
-    let OrderToItemInstance = null
-    //Checks to see if the product is currently on this order
-    if (existingOrderToItem) {
-      if (existingOrderToItem.quantity - req.body.quantity < 0) {
-        res.send(
-          'Cannot remove more of this product than there is left in the cart.'
-        )
-      } else {
-        //subtracts the new quantity to the current quatity when the product is already on the order
-        OrderToItemInstance = await OrderToItem.decrement('quantity', {
-          by: req.body.quantity,
-          where: {
-            orderId: req.body.orderId,
-            productId: req.body.productId
-          }
-        })
-      }
+    if (deletedOrder) {
+      res.send('Order deleted')
     } else {
-      //Adds the product to the order with the quantity passed in
-      res.status(404).send('Nothing to remove')
-    }
-    //Checks to see that the OrderToItem instance was either created or its quantity
-    //was decreased.
-    if (OrderToItemInstance) {
-      //If it was we decrease the total price by the new product's price
-      //times the amount added.
-      OrderToItemInstance = OrderToItemInstance[0][0][0]
-      const newProduct = await Product.findByPk(OrderToItemInstance.productId)
-      const updatedOrder = await Order.decrement('totalPrice', {
-        by: newProduct.price * req.body.quantity,
-        where: {
-          id: OrderToItemInstance.orderId
-        }
-      })
-      res.json(updatedOrder[0][0][0].totalPrice)
-    } else {
-      res.status(500).send('Adding product failed.')
+      res.status(500).send('Order failed to delete.')
     }
   } catch (err) {
     next(err)
