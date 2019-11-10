@@ -19,16 +19,23 @@ router.get('/', async (req, res, next) => {
 
 router.get('/:userId/getCart', async (req, res, next) => {
   try {
-    console.log('The req params is', req.params, 'the body is', req.body)
-
-    const existingCart = await Order.findOne({
+    let existingCart = await Order.findOne({
       where: {
         userId: req.params.userId,
         orderSubmittedDate: null
       }
     })
     if (existingCart) {
-      res.json(existingCart)
+      const orderProducts = await Order.findAll({
+        where: {id: existingCart.id},
+        include: [
+          {
+            model: Product,
+            through: {where: {orderId: existingCart.id}}
+          }
+        ]
+      })
+      res.json(orderProducts)
     } else {
       res.status(404).send('No existing cart for this user.')
     }

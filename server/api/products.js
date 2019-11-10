@@ -18,7 +18,6 @@ router.get('/:id', async (req, res, next) => {
         id: req.params.id
       }
     })
-    // console.log('Single product:', singleProduct)
     if (singleProduct.length) {
       res.status(200).json(singleProduct)
     } else {
