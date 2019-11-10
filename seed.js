@@ -449,6 +449,19 @@ const products = [
   }
 ]
 
+const cartItems = [
+  {
+    productId: 1,
+    orderId: 2,
+    quantity: 1
+  },
+  {
+    productId: 2,
+    orderId: 1,
+    quantity: 5
+  }
+]
+
 // seed your database here!
 const seed = async () => {
   try {
