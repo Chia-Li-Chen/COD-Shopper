@@ -11,7 +11,12 @@ const DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART'
 /**
  * INITIAL STATE
  */
-const defaultOrder = {}
+const defaultOrder = {
+  0: {
+    totalPrice: 0,
+    products: []
+  }
+}
 
 /**
  * ACTION CREATORS
@@ -70,7 +75,10 @@ export default function(state = defaultOrder, action) {
     case DELETE_PRODUCT_FROM_CART:
       return {
         ...state,
-        products: state[0].products.filter(item => item.id !== action.itemId)
+        0: {
+          ...state[0],
+          products: state[0].products.filter(item => item.id !== action.itemId)
+        }
       }
     default:
       return state

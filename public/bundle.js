@@ -1415,10 +1415,16 @@ var DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART';
  * INITIAL STATE
  */
 
-var defaultOrder = {};
-/**
- * ACTION CREATORS
- */
+var defaultOrder = {
+  0: {
+    totalPrice: 0,
+    products: []
+  }
+  /**
+   * ACTION CREATORS
+   */
+
+};
 
 var createCartAction = function createCartAction(totalPrice) {
   return {
@@ -1597,8 +1603,10 @@ var addToCart = function addToCart() {
 
     case DELETE_PRODUCT_FROM_CART:
       return _objectSpread({}, state, {
-        products: state[0].products.filter(function (item) {
-          return item.id !== action.itemId;
+        0: _objectSpread({}, state[0], {
+          products: state[0].products.filter(function (item) {
+            return item.id !== action.itemId;
+          })
         })
       });
 
@@ -1921,19 +1929,26 @@ var auth = function auth(email, password, method) {
                 })));
 
               case 9:
-                try {
-                  dispatch(getUser(res.data));
-                  _history__WEBPACK_IMPORTED_MODULE_1__["default"].push('/home');
-                } catch (dispatchOrHistoryErr) {
-                  console.error(dispatchOrHistoryErr);
-                }
+                _context2.prev = 9;
+                _context2.next = 12;
+                return dispatch(getUser(res.data));
 
-              case 10:
+              case 12:
+                _history__WEBPACK_IMPORTED_MODULE_1__["default"].push('/home');
+                _context2.next = 18;
+                break;
+
+              case 15:
+                _context2.prev = 15;
+                _context2.t1 = _context2["catch"](9);
+                console.error(_context2.t1);
+
+              case 18:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, null, [[0, 6]]);
+        }, _callee2, null, [[0, 6], [9, 15]]);
       }));
 
       return function (_x2) {
