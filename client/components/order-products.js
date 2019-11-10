@@ -6,7 +6,7 @@ const defaultState = {
   totalPrice: 0,
   itemQuantity: {},
   showTotalPrice: 0,
-  basePrice: 0
+  itemPrice: {}
 }
 
 class OrderProducts extends Component {
@@ -15,10 +15,13 @@ class OrderProducts extends Component {
     this.state = defaultState
     this.handleSubmit = this.handleSubmit.bind(this)
     this.showTotalPrice = this.showTotalPrice.bind(this)
+    this.increment = this.increment.bind(this)
+    this.decrement = this.decrement.bind(this)
   }
 
   componentDidMount() {
     this.setState({totalPrice: this.props.order[0].totalPrice})
+    this.setState({itemQuantity: this.props.order[0].products})
     // this.props.order[0].products.map(product => {
     //   this.setState({totalPrice:[product.id]: product.quantity})
     // })
@@ -31,7 +34,12 @@ class OrderProducts extends Component {
 
   showTotalPrice() {}
 
+  increment() {}
+
+  decrement(productId) {}
+
   render() {
+    console.log('this.state: ', this.state)
     if (this.props.order) {
       return (
         <div>
@@ -61,7 +69,12 @@ class OrderProducts extends Component {
                     </div>
                     <div className="productQuantity">
                       <label>Quantity: {product.order_to_item.quantity}</label>
-                      <input type="button" name="decrease" value="-" />
+                      <input
+                        type="button"
+                        name="decrease"
+                        value="-"
+                        onClick={this.decrement(product.id)}
+                      />
                       <input type="button" name="increase" value="+" />
                     </div>
                   </div>
