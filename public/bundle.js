@@ -1090,7 +1090,7 @@ var mapState = function mapState(state) {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate,
+    orderSubmittedDate: state.order[0].orderSubmittedDate,
     orders: state.order
   };
 };
@@ -1256,6 +1256,10 @@ function (_Component) {
         exact: true,
         path: "/signup",
         component: _components__WEBPACK_IMPORTED_MODULE_4__["Signup"]
+      }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Route"], {
+        exact: true,
+        path: "/create-account",
+        component: _components__WEBPACK_IMPORTED_MODULE_4__["CreateAccount"]
       }), isLoggedIn && react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Switch"], null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Route"], {
         path: "/home",
         component: _components__WEBPACK_IMPORTED_MODULE_4__["UserHome"]
