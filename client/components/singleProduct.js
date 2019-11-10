@@ -2,7 +2,6 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {fetchProduct} from '../store/product'
 import {addToCart} from '../store/order'
-import {Link} from 'react-router-dom'
 
 class SingleProduct extends Component {
   constructor(props) {

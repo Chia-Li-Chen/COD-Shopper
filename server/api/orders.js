@@ -119,9 +119,9 @@ router.delete('/deleteitem', async (req, res, next) => {
       }
     })
     if (deletedItem) {
-      res.send('Order deleted')
+      res.send('Item deleted')
     } else {
-      res.status(500).send('Order failed to delete.')
+      res.status(500).send('Item failed to delete.')
     }
   } catch (err) {
     next(err)

@@ -176,40 +176,80 @@ const orders = [
   {
     userId: 1,
     orderSubmittedDate: Date.now() - 15,
-    totalPrice: 10000
+    totalPrice: 19000
   },
   {
     userId: 2,
-    orderSubmittedDate: null,
-    totalPrice: 20000
+    orderSubmittedDate: Date.now() - 14,
+    totalPrice: 15000
+  },
+  {
+    userId: 3,
+    orderDate: null,
+    totalPrice: 16725
+  },
+  {
+    userId: 4,
+    orderDate: null,
+    totalPrice: 37788
+  },
+  {
+    userId: 5,
+    orderDate: null,
+    totalPrice: 97715
   }
 ]
 
 const orderProducts = [
   {
     orderId: 1,
+    productId: 1,
+    quantity: 1
+  },
+  {
+    orderId: 1,
     productId: 2,
     quantity: 3
   },
   {
-    orderId: 1,
+    orderId: 2,
+    productId: 2,
+    quantity: 2
+  },
+  {
+    orderId: 2,
     productId: 3,
-    quantity: 2
+    quantity: 4
   },
   {
-    orderId: 1,
-    productId: 6,
-    quantity: 1
+    orderId: 3,
+    productId: 3,
+    quantity: 3
   },
   {
-    orderId: 1,
+    orderId: 3,
     productId: 4,
-    quantity: 1
+    quantity: 5
   },
   {
-    orderId: 1,
+    orderId: 4,
+    productId: 4,
+    quantity: 4
+  },
+  {
+    orderId: 4,
     productId: 5,
-    quantity: 2
+    quantity: 6
+  },
+  {
+    orderId: 5,
+    productId: 5,
+    quantity: 5
+  },
+  {
+    orderId: 5,
+    productId: 6,
+    quantity: 7
   }
 ]
 
