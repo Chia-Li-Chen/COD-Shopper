@@ -185,6 +185,34 @@ const orders = [
   }
 ]
 
+const orderProducts = [
+  {
+    orderId: 1,
+    productId: 2,
+    quantity: 3
+  },
+  {
+    orderId: 1,
+    productId: 3,
+    quantity: 2
+  },
+  {
+    orderId: 1,
+    productId: 6,
+    quantity: 1
+  },
+  {
+    orderId: 1,
+    productId: 4,
+    quantity: 1
+  },
+  {
+    orderId: 1,
+    productId: 5,
+    quantity: 2
+  }
+]
+
 // const order = [{
 //   userId: 3,
 //   orderStatusId: 3,
@@ -457,8 +485,8 @@ const seed = async () => {
     )
 
     await Promise.all(
-      cartItems.map(cartItem => {
-        return OrderToItem.create(cartItem)
+      orderProducts.map(orderProduct => {
+        return OrderToItem.create(orderProduct)
       })
     )
 
