@@ -25,14 +25,17 @@ router.get('/:userId/getCart', async (req, res, next) => {
         orderSubmittedDate: null
       }
     })
-
-    existingCart = await Order.findAll({
-      includes: [
-        {model: Product, through: {where: {id: existingCart.dataValues.id}}}
-      ]
-    })
     if (existingCart) {
-      res.json(existingCart)
+      const orderProducts = await Order.findAll({
+        where: {id: existingCart.id},
+        include: [
+          {
+            model: Product,
+            through: {where: {orderId: existingCart.id}}
+          }
+        ]
+      })
+      res.json(orderProducts)
     } else {
       res.status(404).send('No existing cart for this user.')
     }
@@ -109,13 +112,13 @@ router.post('/add', async (req, res, next) => {
 //uses deleteitem path so it is not mistaken for deleting an entire cart.
 router.delete('/deleteitem', async (req, res, next) => {
   try {
-    const deletedOrder = await OrderToItem.destroy({
+    const deletedItem = await OrderToItem.destroy({
       where: {
         productId: req.body.productId,
         orderId: req.body.orderId
       }
     })
-    if (deletedOrder) {
+    if (deletedItem) {
       res.send('Order deleted')
     } else {
       res.status(500).send('Order failed to delete.')

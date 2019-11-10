@@ -2,26 +2,39 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {createCart, getCart} from '../store'
+import OrderProducts from './order-products'
 
 /**
  * COMPONENT
  */
 class UserHome extends React.Component {
   async componentDidMount() {
-    console.log('props>>>>>', this.props)
     await this.props.getCart(this.props.userId)
-    console.log('Submitted date >>>>', this.props.orderSubmittedDate)
     if (this.props.orderSubmittedDate !== null) {
       await this.props.createCart(this.props.userId)
     }
   }
 
   render() {
-    return (
-      <div>
-        <h3>Welcome, {this.props.email}</h3>
-      </div>
-    )
+    let order = this.props.orders[0]
+    if (order) {
+      return (
+        <div>
+          <h3>Welcome, {this.props.user.firstName}</h3>
+          <h4>Your Shopping Cart: </h4>
+          <div>
+            <OrderProducts order={order} />
+          </div>
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          <h3>Welcome, {this.props.user.firstName}</h3>
+          <h4>Your Shopping Cart: </h4>
+        </div>
+      )
+    }
   }
 }
 
@@ -30,9 +43,11 @@ class UserHome extends React.Component {
  */
 const mapState = state => {
   return {
+    user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate
+    orderSubmittedDate: state.order.orderSubmittedDate,
+    orders: state.order
   }
 }
 
@@ -47,5 +62,5 @@ export default connect(mapState, mapDispatch)(UserHome)
  * PROP TYPES
  */
 UserHome.propTypes = {
-  email: PropTypes.string
+  // email: PropTypes.string
 }
