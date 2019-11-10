@@ -106,10 +106,13 @@ router.post('/add', async (req, res, next) => {
 
 //Deletes an ordertoitem record with the given id.
 //uses deleteitem path so it is not mistaken for deleting an entire cart.
-router.delete('/deleteitem/:cartItemId', async (req, res, next) => {
+router.delete('/deleteitem', async (req, res, next) => {
   try {
-    const deletedOrder = await Order.destroy({
-      where: {id: req.params.cartItemId}
+    const deletedOrder = await OrderToItem.destroy({
+      where: {
+        productId: req.body.productId,
+        orderId: req.body.orderId
+      }
     })
     if (deletedOrder) {
       res.send('Order deleted')
