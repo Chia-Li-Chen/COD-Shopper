@@ -27,6 +27,7 @@ router.get('/:userId/getCart', async (req, res, next) => {
         orderSubmittedDate: null
       }
     })
+
     console.log('CART>>>>>>,', existingCart)
     existingCart = await Order.findAll({
       includes: [
