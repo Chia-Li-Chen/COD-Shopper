@@ -4,7 +4,6 @@ import axios from 'axios'
  * ACTION TYPES
  */
 const CREATE_CART = 'CREATE_CART'
-const ADD_TO_CART = 'ADD_TO_CART'
 const GET_CART = 'GET_CART'
 const DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART'
 const GET_ORDERITEM = 'GET_ORDERITEM'
@@ -20,7 +19,6 @@ const defaultOrder = {}
  */
 
 const createCartAction = totalPrice => ({type: CREATE_CART, totalPrice})
-const addToCartAction = order => ({type: ADD_TO_CART, order})
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
 const updateCartAction = order => ({type: UPDATE_CART, order})
@@ -72,15 +70,6 @@ export const createCart = userId => async dispatch => {
   }
 }
 
-export const addToCart = () => async dispatch => {
-  try {
-    const response = await axios.post('/api/orderstoitems/')
-    dispatch(addToCartAction(response.data))
-  } catch (err) {
-    console.error(err)
-  }
-}
-
 /**
  * REDUCER
  */
@@ -89,8 +78,6 @@ export default function(state = defaultOrder, action) {
   switch (action.type) {
     case CREATE_CART:
       return {...state, ...action.totalPrice}
-    case ADD_TO_CART:
-      return {...state, ...action.product}
     case GET_CART:
       return {...state, ...action.orderProducts}
     case DELETE_PRODUCT_FROM_CART:
@@ -100,10 +87,10 @@ export default function(state = defaultOrder, action) {
           product => product.id !== action.itemId
         )
       }
-    case GET_ORDERITEM:
-      return {...state, ...action.orderItems}
-    case UPDATE_CART:
-      return {...state, ...action.orderItems}
+    // case GET_ORDERITEM:
+    //   return {...state, ...action.orderItems}
+    // case UPDATE_CART:
+    //   return { ...state, ...action.orderItems }
     default:
       return state
   }

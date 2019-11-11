@@ -6,40 +6,6 @@ const {User} = require('./server/db/models/models_index')
 const {Product} = require('./server/db/models/models_index')
 const {Order} = require('./server/db/models/models_index')
 const {OrderToItem} = require('./server/db/models/models_index')
-// OrderItems
-//   -
-//   orderId int FK > - Order.orderId
-// productId int FK > - Product.productId
-
-// PaymentInfo
-// -----
-//   paymentInfoId int PK
-// user int FK > - User.userId
-// paymentType int FK > - PaymentType.paymentTypeId
-
-// PaymentType
-// ----
-//   paymentTypeId int PK
-// name string
-
-// Shipment
-// ----
-//   shipmentId PK int
-
-// OrderStatus
-// ----
-//   OrderStatusId PK int
-// name UNIQUE string
-
-// User
-//   -
-//   userId PK int
-// email string
-// password  string
-// firstName string
-// lastName  string
-// phoneNumber string
-// group int FK > - Group.groupId = ** userRole
 
 const users = [
   {
@@ -162,162 +128,86 @@ const users = [
 //   role: 'admin',
 // },];
 
-// Order
-//   -
-// userId int FK > - User.UserID
-// orderId PK int
-// orderStatusId int FK > - OrderStatus.orderStatusId
-// orderDate datetime
-// totalPrice decimal
-// shipmentint FK > - Shipment.shipmentId
-// paymentInfo int FK > - PaymentInfo.paymentInfoId
-
 const orders = [
   {
     userId: 1,
     orderSubmittedDate: Date.now() - 15,
-    totalPrice: 10000
+    totalPrice: 19000
   },
   {
     userId: 2,
-    orderSubmittedDate: null,
-    totalPrice: 20000
+    orderSubmittedDate: Date.now() - 14,
+    totalPrice: 15000
+  },
+  {
+    userId: 3,
+    orderDate: null,
+    totalPrice: 16725
+  },
+  {
+    userId: 4,
+    orderDate: null,
+    totalPrice: 37788
+  },
+  {
+    userId: 5,
+    orderDate: null,
+    totalPrice: 97715
   }
 ]
 
 const orderProducts = [
   {
     orderId: 1,
+    productId: 1,
+    quantity: 1
+  },
+  {
+    orderId: 1,
     productId: 2,
     quantity: 3
   },
   {
-    orderId: 1,
+    orderId: 2,
+    productId: 2,
+    quantity: 2
+  },
+  {
+    orderId: 2,
     productId: 3,
-    quantity: 2
+    quantity: 4
   },
   {
-    orderId: 1,
-    productId: 6,
-    quantity: 1
+    orderId: 3,
+    productId: 3,
+    quantity: 3
   },
   {
-    orderId: 1,
+    orderId: 3,
     productId: 4,
-    quantity: 1
+    quantity: 5
   },
   {
-    orderId: 1,
+    orderId: 4,
+    productId: 4,
+    quantity: 4
+  },
+  {
+    orderId: 4,
     productId: 5,
-    quantity: 2
+    quantity: 6
+  },
+  {
+    orderId: 5,
+    productId: 5,
+    quantity: 5
+  },
+  {
+    orderId: 5,
+    productId: 6,
+    quantity: 7
   }
 ]
-
-// const order = [{
-//   userId: 3,
-//   orderStatusId: 3,
-//   orderDate: Date.now() - 13,
-//   totalPrice: 550.00,
-//   shipment: 3,
-//   paymentInfo: 1,
-// }, {
-//   userId: 4,
-//   orderStatusId: 1,
-//   orderDate: Date.now() - 12,
-//   totalPrice: 550.00,
-//   shipment: 4,
-//   paymentInfo: 1,
-// }, {
-//   userId: 5,
-//   orderStatusId: 2,
-//   orderDate: Date.now() - 11,
-//   totalPrice: 550.00,
-//   shipment: 5,
-//   paymentInfo: 1,
-// }, {
-//   userId: 6,
-//   orderStatusId: 3,
-//   orderDate: Date.now() - 10,
-//   totalPrice: 550.00,
-//   shipment: 6,
-//   paymentInfo: 1,
-// }, {
-//   userId: 7,
-//   orderStatusId: 1,
-//   orderDate: Date.now() - 9,
-//   totalPrice: 550.00,
-//   shipment: 7,
-//   paymentInfo: 1,
-// }, {
-//   userId: 8,
-//   orderStatusId: 2,
-//   orderDate: Date.now() - 8,
-//   totalPrice: 550.00,
-//   shipment: 8,
-//   paymentInfo: 1,
-// }, {
-//   userId: 9,
-//   orderStatusId: 3,
-//   orderDate: Date.now() - 7,
-//   totalPrice: 550.00,
-//   shipment: 9,
-//   paymentInfo: 1,
-// }, {
-//   userId: 10,
-//   orderStatusId: 1,
-//   orderDate: Date.now() - 6,
-//   totalPrice: 550.00,
-//   shipment: 10,
-//   paymentInfo: 1,
-// }, {
-//   userId: 11,
-//   orderStatusId: 2,
-//   orderDate: Date.now() - 5,
-//   totalPrice: 550.00,
-//   shipment: null,
-//   paymentInfo: 1,
-// }, {
-//   userId: 12,
-//   orderStatusId: 3,
-//   orderDate: Date.now() - 4,
-//   totalPrice: 550.00,
-//   shipment: null,
-//   paymentInfo: 1,
-// }, {
-//   userId: 13,
-//   orderStatusId: 1,
-//   orderDate: Date.now() - 3,
-//   totalPrice: 550.00,
-//   shipment: null,
-//   paymentInfo: 1,
-// }, {
-//   userId: 14,
-//   orderStatusId: 2,
-//   orderDate: Date.now() - 2,
-//   totalPrice: 550.00,
-//   shipment: null,
-//   paymentInfo: 1,
-// }, {
-//   userId: 15,
-//   orderStatusId: 3,
-//   orderDate: Date.now() - 1,
-//   totalPrice: 550.00,
-//   shipment: null,
-//   paymentInfo: 1,
-// },];
-
-// Product  # Table documentation comment 2
-// ------------
-//   productId PK int
-// # Field documentation comment 1
-// # Field documentation comment 2
-// imageUrl string
-// name varchar(200) UNIQUE # Field documentation comment 3
-// price money
-// description text
-// productGroup int FK > - productGroup.productGroupId
-// inventory int
-// isFeatured boolean
 
 // productGroup
 // -------
@@ -352,7 +242,6 @@ const products = [
     price: 1500,
     description:
       'The silver skinned Bronzini is a fish with a history, since it’s been enjoyed in the Mediterranean for thousands of years. It’s no wonder! Almost everyone enjoys its velvety texture and sweet, mild flavor. Perfect for those not accustomed to strong seafood flavors. Bronzini’s mildness makes it ideal for baking, broiling, steaming, poaching, sautéing, or grilling. We especially like roasting it whole with lemons, parsley and fennel. Keep seasonings and sauces light, so the mild taste is not overpowered. This Mediterranean favorite offers a good source of Vitamins A, C and B6, as well as Calcium, Iron, Potassium and Selenium.',
-    productGroupId: 1,
     inventory: 22,
     isFeatured: true
   },
@@ -363,7 +252,6 @@ const products = [
     price: 2445,
     description:
       'The high fat content of the Chilean Sea Bass gives it a rich, unique flavor. What’s more, the luxurious texture with large, white flakes almost melts in your mouth! If you like Sablefish or Black Cod, this one’s for you! Chilean Sea Bass does very well on the grill. You may also broil, poach, sauté or steam it with delicious results. It possesses a substantial enough flavor to hold up to bolder flavors, like olives, capers and garlic, so be creative and enjoy. Chilean Sea Bass is a terrific source of protein, as well as a good source of Omega-3 fatty acid.',
-    productGroupId: 1,
     inventory: 23,
     isFeatured: false
   },
@@ -401,7 +289,7 @@ const products = [
     name: 'Butterfish - Fresh, Wild, USA, Whole',
     imageUrl:
       'https://shop.fultonfishmarket.com/media/catalog/product/cache/2/image/500x375/9df78eab33525d08d6e5fb8d27136e95/2/5/2585.jpg',
-    price: 650,
+    price: 655,
     description:
       'Butterfish may be small and flat (about 8 ounces), but they are a big hit for those who prefer a delicate seafood taste. Our butterfish for sale is a high-fat fish with a very tender, smooth texture and a rich, sweet flavor similar to butter! The tender texture and sweet flavor of butterfish make it ideal for broiling and baking. You can also gently sauté it with a dusting of flour, finishing it off with a squeeze of lemon and fresh flat leaf parsley. Thanks to their miniature size, most chefs do not even bother filleting them! Keeping it simple is best when preparing butterfish. When you buy butterfish, you will receive a good source of protein, vitamin A, calcium, potassium, and iron.',
     inventory: 26,
@@ -449,18 +337,18 @@ const products = [
   }
 ]
 
-const cartItems = [
-  {
-    productId: 1,
-    orderId: 2,
-    quantity: 1
-  },
-  {
-    productId: 2,
-    orderId: 1,
-    quantity: 5
-  }
-]
+// const cartItems = [
+//   {
+//     productId: 1,
+//     orderId: 2,
+//     quantity: 1
+//   },
+//   {
+//     productId: 2,
+//     orderId: 1,
+//     quantity: 5
+//   }
+// ]
 
 // seed your database here!
 const seed = async () => {

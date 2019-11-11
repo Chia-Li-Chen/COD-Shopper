@@ -5,6 +5,7 @@ import axios from 'axios'
  */
 const GET_ORDERITEM = 'GET_ORDERITEM'
 const UPDATE_ORDERITEM = 'UPDATE_ORDERITEM'
+const ADD_PRODUCT_TO_CART = 'ADD_PRODUCT_TO_CART'
 
 /**
  * INITIAL STATE
@@ -19,6 +20,10 @@ const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
 const updateOrderItemsAction = orderItems => ({
   type: UPDATE_ORDERITEM,
   orderItems
+})
+const addToCartAction = orderItemInstance => ({
+  type: ADD_PRODUCT_TO_CART,
+  orderItemInstance
 })
 
 /**
@@ -46,6 +51,19 @@ export const updateOrderItems = orderItem => async dispatch => {
     console.error(err)
   }
 }
+
+export const addProductToCart = orderId => async dispatch => {
+  try {
+    const response = await axios.post('/api/orders/additem', {
+      orderId,
+      productId,
+      quantity
+    })
+    dispatch(addToCartAction(response.data))
+  } catch (err) {
+    console.error(err)
+  }
+}
 /**
  * REDUCER
  */
@@ -67,6 +85,8 @@ export default function(state = defaultOrderItem, action) {
       })
       return {...state, updatedOrderItem}
     }
+    case ADD_PRODUCT_TO_CART:
+      return {...state, ...action.product}
     default:
       return state
   }

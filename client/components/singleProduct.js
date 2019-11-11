@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {fetchProduct} from '../store/product'
-import {Link} from 'react-router-dom'
+import {addProductToCart} from '../store/orderItems'
 
 class SingleProduct extends Component {
   constructor(props) {
@@ -11,7 +11,7 @@ class SingleProduct extends Component {
     }
 
     this.handleChange = this.handleChange.bind(this)
-    // this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   handleChange(event) {
@@ -22,7 +22,11 @@ class SingleProduct extends Component {
 
   handleSubmit(event) {
     event.preventDefault()
-
+    this.props.addProductToCart(
+      this.props.orderId,
+      this.props.match.params.id,
+      this.state.quantity
+    )
     this.setState({
       quantity: ''
     })
@@ -36,13 +40,12 @@ class SingleProduct extends Component {
     return (
       <table className="single-product-body">
         <tbody>
-          <Link to="/products">See all fishes</Link>
           {this.props.products.productList.map(product => (
             <tr key={product.id}>
               <img src={product.imageUrl} width="150" height="150" />
               <td>{`Name: ${product.name}`}</td>
               <td>{`Description: ${product.description}`}</td>
-              <td>{`Price: ${product.price}`}</td>
+              <td>{`Price: $${product.price / 100.0}`}</td>
             </tr>
           ))}
         </tbody>
@@ -64,11 +67,14 @@ class SingleProduct extends Component {
 }
 
 const mapStateToProps = state => ({
-  products: state.products
+  products: state.products,
+  orderId: state.orderId
 })
 
 const mapDispatchToProps = dispatch => ({
-  fetchProduct: id => dispatch(fetchProduct(id))
+  fetchProduct: id => dispatch(fetchProduct(id)),
+  addProductToCart: (orderId, productId, quantity) =>
+    dispatch(addProductToCart(orderId, productId, quantity))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SingleProduct)
