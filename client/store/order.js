@@ -108,11 +108,16 @@ export default function(state = defaultOrder, action) {
     case GET_CART:
       return {...state, ...action.orderProducts}
     case DELETE_PRODUCT_FROM_CART:
-      return {0: {...state[0], justDeleted: action.deletedItem}}
+      return {
+        ...state,
+        orderItems: state.orderItems.filter(
+          product => product.id !== action.itemId
+        )
+      }
     // case GET_ORDERITEM:
     //   return {...state, ...action.orderItems}
-    case UPDATE_CART:
-      return {...state, ...action.orderItems}
+    // case UPDATE_CART:
+    //   return {...state, ...action.orderItems}
     default:
       return state
   }
