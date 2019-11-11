@@ -14,7 +14,12 @@ const UPDATE_CART = 'UPDATE_CART'
 /**
  * INITIAL STATE
  */
-const defaultOrder = {}
+const defaultOrder = {
+  0: {
+    totalPrice: 0,
+    products: []
+  }
+}
 
 /**
  * ACTION CREATORS
