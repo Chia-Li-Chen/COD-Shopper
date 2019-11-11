@@ -100,10 +100,10 @@ export default function(state = defaultOrder, action) {
           product => product.id !== action.itemId
         )
       }
-    case GET_ORDERITEM:
-      return {...state, ...action.orderItems}
-    case UPDATE_CART:
-      return {...state, ...action.orderItems}
+    // case GET_ORDERITEM:
+    //   return {...state, ...action.orderItems}
+    // case UPDATE_CART:
+    //   return {...state, ...action.orderItems}
     default:
       return state
   }

@@ -51,21 +51,23 @@ export const updateOrderItems = orderItem => async dispatch => {
  */
 export default function(state = defaultOrderItem, action) {
   Object.freeze(state)
+  console.log('state.orderItem: ', state)
+  console.log('state.orderItem: ', state)
   switch (action.type) {
     case GET_ORDERITEM:
       return [...state, ...action.orderItems]
     case UPDATE_ORDERITEM: {
-      const updatedOrderItem = state.orderItems.map(orderItem => {
+      const updatedOrderItem = state.map(orderItem => {
         if (
-          orderItem.orderId === action.orderItem.orderId &&
-          orderItem.productId === action.orderItem.productId
+          orderItem.orderId === action.orderItems.orderId &&
+          orderItem.productId === action.orderItems.productId
         ) {
           return action.orderItem
         } else {
           return orderItem
         }
       })
-      return {...state, updatedOrderItem}
+      return [...state, updatedOrderItem]
     }
     default:
       return state

@@ -743,20 +743,43 @@ function (_Component) {
     }()
   }, {
     key: "handleSubmit",
-    value: function handleSubmit(event) {
-      event.preventDefault();
-      console.log('this.props: ', this.props);
-      console.log('this.state.orders: ', this.state.orders[0].id);
-      var order = {
-        id: this.state.orders[0].id,
-        totalPrice: this.state.showTotalPrice
-      };
-      this.props.updateCart(order);
+    value: function () {
+      var _handleSubmit = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2(event) {
+        var order, i;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                event.preventDefault();
+                order = {
+                  id: this.state.orders[0].id,
+                  totalPrice: this.state.showTotalPrice
+                };
+                this.props.updateCart(order);
 
-      for (var i = 0; i < this.state.orderItems.length; i++) {
-        this.props.updateOrderItems(this.state.orderItems[i]);
+                for (i = 0; i < this.state.orderItems.length; i++) {
+                  this.props.updateOrderItems(this.state.orderItems[i]);
+                }
+
+                _context2.next = 6;
+                return this.props.getOrderItem(this.props.order[0].id);
+
+              case 6:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, this);
+      }));
+
+      function handleSubmit(_x) {
+        return _handleSubmit.apply(this, arguments);
       }
-    }
+
+      return handleSubmit;
+    }()
   }, {
     key: "calcTotalPrice",
     value: function calcTotalPrice() {
@@ -833,9 +856,6 @@ function (_Component) {
     key: "render",
     value: function render() {
       var _this3 = this;
-
-      console.log('this.state: ', this.state);
-      console.log('this.props: ', this.state.orders[0]);
 
       if (this.props.order) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
@@ -1829,14 +1849,12 @@ var addToCart = function addToCart() {
       return _objectSpread({}, state, {
         orderItems: state.orderItems.filter(function (product) {
           return product.id !== action.itemId;
-        })
+        }) // case GET_ORDERITEM:
+        //   return {...state, ...action.orderItems}
+        // case UPDATE_CART:
+        //   return {...state, ...action.orderItems}
+
       });
-
-    case GET_ORDERITEM:
-      return _objectSpread({}, state, {}, action.orderItems);
-
-    case UPDATE_CART:
-      return _objectSpread({}, state, {}, action.orderItems);
 
     default:
       return state;
@@ -1858,12 +1876,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return updateOrderItems; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -2000,6 +2012,8 @@ var updateOrderItems = function updateOrderItems(orderItem) {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultOrderItem;
   var action = arguments.length > 1 ? arguments[1] : undefined;
   Object.freeze(state);
+  console.log('state.orderItem: ', state);
+  console.log('state.orderItem: ', state);
 
   switch (action.type) {
     case GET_ORDERITEM:
@@ -2007,16 +2021,14 @@ var updateOrderItems = function updateOrderItems(orderItem) {
 
     case UPDATE_ORDERITEM:
       {
-        var updatedOrderItem = state.orderItems.map(function (orderItem) {
-          if (orderItem.orderId === action.orderItem.orderId && orderItem.productId === action.orderItem.productId) {
+        var updatedOrderItem = state.map(function (orderItem) {
+          if (orderItem.orderId === action.orderItems.orderId && orderItem.productId === action.orderItems.productId) {
             return action.orderItem;
           } else {
             return orderItem;
           }
         });
-        return _objectSpread({}, state, {
-          updatedOrderItem: updatedOrderItem
-        });
+        return [].concat(_toConsumableArray(state), [updatedOrderItem]);
       }
 
     default:
@@ -45982,7 +45994,7 @@ function warning(message) {
 /*!***************************************************************!*\
   !*** ./node_modules/react-router-dom/esm/react-router-dom.js ***!
   \***************************************************************/
-/*! exports provided: BrowserRouter, HashRouter, Link, NavLink, MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext */
+/*! exports provided: MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext, BrowserRouter, HashRouter, Link, NavLink */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

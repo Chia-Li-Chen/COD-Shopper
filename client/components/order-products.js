@@ -21,18 +21,11 @@ class OrderProducts extends Component {
   }
 
   async componentDidMount() {
-    // this.setState({totalPrice: this.props.order[0].totalPrice})
-    // this.setState({products: this.props.order[0].products})
-    // this.setState({showTotalPrice: this.props.order[0].totalPrice})
-    // this.setState({orderItems: [...this.props.orderItems]})
-    // this.setState({orders:this.props.order})
     await this.props.getOrderItem(this.props.order[0].id)
   }
 
-  handleSubmit(event) {
+  async handleSubmit(event) {
     event.preventDefault()
-    console.log('this.props: ', this.props)
-    console.log('this.state.orders: ', this.state.orders[0].id)
     let order = {
       id: this.state.orders[0].id,
       totalPrice: this.state.showTotalPrice
@@ -41,6 +34,7 @@ class OrderProducts extends Component {
     for (let i = 0; i < this.state.orderItems.length; i++) {
       this.props.updateOrderItems(this.state.orderItems[i])
     }
+    await this.props.getOrderItem(this.props.order[0].id)
   }
 
   calcTotalPrice() {
@@ -103,8 +97,6 @@ class OrderProducts extends Component {
   }
 
   render() {
-    console.log('this.state: ', this.state)
-    console.log('this.props: ', this.state.orders[0])
     if (this.props.order) {
       return (
         <form onSubmit={this.handleSubmit}>
