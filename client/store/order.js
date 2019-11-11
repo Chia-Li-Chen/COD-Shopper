@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {runInContext} from 'vm'
 
 /*
  * ACTION TYPES
@@ -24,7 +25,10 @@ const addToCartAction = order => ({type: ADD_TO_CART, order})
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
 const updateCartAction = order => ({type: UPDATE_CART, order})
-
+const deleteProductFromCartAction = deletedItem => ({
+  type: DELETE_PRODUCT_FROM_CART,
+  deletedItem
+})
 /**
  * THUNK CREATORS
  */
@@ -37,11 +41,6 @@ export const getCart = userId => async dispatch => {
     console.error(err)
   }
 }
-
-export const deleteProductFromCart = id => ({
-  type: DELETE_PRODUCT_FROM_CART,
-  itemId: id
-})
 
 export const updateCart = order => async dispatch => {
   try {
@@ -81,6 +80,21 @@ export const addToCart = () => async dispatch => {
   }
 }
 
+export const deleteProductFromCart = (productId, orderId) => async dispatch => {
+  try {
+    console.log('in ACTION, productID: ', productId, 'orderId: ', orderId)
+    const response = await axios.delete('/api/orders/deleteitem', {
+      data: {
+        productId: productId,
+        orderId: orderId
+      }
+    })
+    dispatch(deleteProductFromCartAction(response.data))
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 /**
  * REDUCER
  */
@@ -94,14 +108,9 @@ export default function(state = defaultOrder, action) {
     case GET_CART:
       return {...state, ...action.orderProducts}
     case DELETE_PRODUCT_FROM_CART:
-      return {
-        ...state,
-        orderItems: state.orderItems.filter(
-          product => product.id !== action.itemId
-        )
-      }
-    case GET_ORDERITEM:
-      return {...state, ...action.orderItems}
+      return {0: {...state[0], justDeleted: action.deletedItem}}
+    // case GET_ORDERITEM:
+    //   return {...state, ...action.orderItems}
     case UPDATE_CART:
       return {...state, ...action.orderItems}
     default:

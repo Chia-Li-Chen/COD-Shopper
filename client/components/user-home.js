@@ -14,13 +14,18 @@ class UserHome extends React.Component {
   }
   async componentDidMount() {
     await this.props.getCart(this.props.userId)
-    if (this.props.orderSubmittedDate !== null) {
+    if (this.props.orders[0].orderSubmittedDate !== null) {
       await this.props.createCart(this.props.userId)
     }
   }
 
   deleteProductHandler(evt) {
-    this.props.deleteProduct(Number(evt.currentTarget.value))
+    console.log('BEFORE DELETE PRODUCTID', evt.currentTarget.value)
+    console.log('BEFORE DELETE ORDERID', this.props.orders[0].id)
+    this.props.deleteProduct(
+      Number(evt.currentTarget.value),
+      this.props.orders[0].id
+    )
   }
 
   render() {
@@ -57,7 +62,6 @@ const mapState = state => {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate,
     orderId: state.order.id,
     orders: state.order
   }
@@ -66,7 +70,8 @@ const mapState = state => {
 const mapDispatch = dispatch => ({
   getCart: id => dispatch(getCart(id)),
   createCart: id => dispatch(createCart(id)),
-  deleteProduct: id => dispatch(deleteProductFromCart(id))
+  deleteProduct: (productId, orderId) =>
+    dispatch(deleteProductFromCart(productId, orderId))
 })
 
 export default connect(mapState, mapDispatch)(UserHome)

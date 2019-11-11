@@ -27,7 +27,11 @@ class AddUser extends Component {
 
   handleSubmit(event) {
     event.preventDefault()
-    this.props.addUser(this.state)
+    // if (this.state.password.length < 12) {
+    //   alert("password must be at least 12 characters")
+    // } else {
+    //   this.props.addUser(this.state)
+    // }
     this.setState(defaultState)
   }
 

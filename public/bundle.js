@@ -443,8 +443,12 @@ function (_Component) {
   }, {
     key: "handleSubmit",
     value: function handleSubmit(event) {
-      event.preventDefault();
-      this.props.addUser(this.state);
+      event.preventDefault(); // if (this.state.password.length < 12) {
+      //   alert("password must be at least 12 characters")
+      // } else {
+      //   this.props.addUser(this.state)
+      // }
+
       this.setState(defaultState);
     }
   }, {
@@ -1145,7 +1149,7 @@ function (_React$Component) {
                 return this.props.getCart(this.props.userId);
 
               case 2:
-                if (!(this.props.orderSubmittedDate !== null)) {
+                if (!(this.props.orders[0].orderSubmittedDate !== null)) {
                   _context.next = 5;
                   break;
                 }
@@ -1170,7 +1174,9 @@ function (_React$Component) {
   }, {
     key: "deleteProductHandler",
     value: function deleteProductHandler(evt) {
-      this.props.deleteProduct(Number(evt.currentTarget.value));
+      console.log("BEFORE DELETE PRODUCTID", evt.currentTarget.value);
+      console.log("BEFORE DELETE ORDERID", this.props.orders[0].id);
+      this.props.deleteProduct(Number(evt.currentTarget.value), this.props.orders[0].id);
     }
   }, {
     key: "render",
@@ -1200,7 +1206,6 @@ var mapState = function mapState(state) {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order.orderSubmittedDate,
     orderId: state.order.id,
     orders: state.order
   };
@@ -1214,8 +1219,8 @@ var mapDispatch = function mapDispatch(dispatch) {
     createCart: function createCart(id) {
       return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["createCart"])(id));
     },
-    deleteProduct: function deleteProduct(id) {
-      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["deleteProductFromCart"])(id));
+    deleteProduct: function deleteProduct(productId, orderId) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["deleteProductFromCart"])(productId, orderId));
     }
   };
 };
@@ -1440,7 +1445,7 @@ socket.on('connect', function () {
 /*!*******************************!*\
   !*** ./client/store/index.js ***!
   \*******************************/
-/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, deleteProductFromCart, updateCart, getOrderItem, createCart, addToCart, updateOrderItems */
+/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, updateCart, getOrderItem, createCart, addToCart, deleteProductFromCart, updateOrderItems */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1469,8 +1474,6 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getCart"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["deleteProductFromCart"]; });
-
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["updateCart"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getOrderItem"]; });
@@ -1478,6 +1481,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["createCart"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["addToCart"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["deleteProductFromCart"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return _orderItems__WEBPACK_IMPORTED_MODULE_7__["updateOrderItems"]; });
 
@@ -1511,19 +1516,21 @@ var store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, m
 /*!*******************************!*\
   !*** ./client/store/order.js ***!
   \*******************************/
-/*! exports provided: getCart, deleteProductFromCart, updateCart, getOrderItem, createCart, addToCart, default */
+/*! exports provided: getCart, updateCart, getOrderItem, createCart, addToCart, deleteProductFromCart, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return getCart; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return deleteProductFromCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateCart", function() { return updateCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return createCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return addToCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return deleteProductFromCart; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vm__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vm */ "./node_modules/vm-browserify/index.js");
+/* harmony import */ var vm__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vm__WEBPACK_IMPORTED_MODULE_1__);
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -1533,6 +1540,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 
 
 /*
@@ -1588,6 +1596,13 @@ var updateCartAction = function updateCartAction(order) {
     order: order
   };
 };
+
+var deleteProductFromCartAction = function deleteProductFromCartAction(deletedItem) {
+  return {
+    type: DELETE_PRODUCT_FROM_CART,
+    deletedItem: deletedItem
+  };
+};
 /**
  * THUNK CREATORS
  */
@@ -1633,12 +1648,6 @@ var getCart = function getCart(userId) {
       };
     }()
   );
-};
-var deleteProductFromCart = function deleteProductFromCart(id) {
-  return {
-    type: DELETE_PRODUCT_FROM_CART,
-    itemId: id
-  };
 };
 var updateCart = function updateCart(order) {
   return (
@@ -1806,6 +1815,53 @@ var addToCart = function addToCart() {
     }()
   );
 };
+var deleteProductFromCart = function deleteProductFromCart(productId, orderId) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref6 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee6(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee6$(_context6) {
+          while (1) {
+            switch (_context6.prev = _context6.next) {
+              case 0:
+                _context6.prev = 0;
+                console.log('in ACTION, productID: ', productId, 'orderId: ', orderId);
+                _context6.next = 4;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a["delete"]('/api/orders/deleteitem', {
+                  data: {
+                    productId: productId,
+                    orderId: orderId
+                  }
+                });
+
+              case 4:
+                response = _context6.sent;
+                dispatch(deleteProductFromCartAction(response.data));
+                _context6.next = 11;
+                break;
+
+              case 8:
+                _context6.prev = 8;
+                _context6.t0 = _context6["catch"](0);
+                console.error(_context6.t0);
+
+              case 11:
+              case "end":
+                return _context6.stop();
+            }
+          }
+        }, _callee6, null, [[0, 8]]);
+      }));
+
+      return function (_x6) {
+        return _ref6.apply(this, arguments);
+      };
+    }()
+  );
+};
 /**
  * REDUCER
  */
@@ -1826,14 +1882,13 @@ var addToCart = function addToCart() {
       return _objectSpread({}, state, {}, action.orderProducts);
 
     case DELETE_PRODUCT_FROM_CART:
-      return _objectSpread({}, state, {
-        orderItems: state.orderItems.filter(function (product) {
-          return product.id !== action.itemId;
-        })
-      });
+      return {
+        0: _objectSpread({}, state[0], {
+          justDeleted: action.deletedItem
+        }) // case GET_ORDERITEM:
+        //   return {...state, ...action.orderItems}
 
-    case GET_ORDERITEM:
-      return _objectSpread({}, state, {}, action.orderItems);
+      };
 
     case UPDATE_CART:
       return _objectSpread({}, state, {}, action.orderItems);
@@ -1863,14 +1918,6 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -2002,9 +2049,8 @@ var updateOrderItems = function updateOrderItems(orderItem) {
   Object.freeze(state);
 
   switch (action.type) {
-    case GET_ORDERITEM:
-      return [].concat(_toConsumableArray(state), _toConsumableArray(action.orderItems));
-
+    // case GET_ORDERITEM:
+    //   return [...state, ...action.orderItems]
     case UPDATE_ORDERITEM:
       {
         var updatedOrderItem = state.orderItems.map(function (orderItem) {
@@ -54251,6 +54297,166 @@ function valueEqual(a, b) {
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (valueEqual);
+
+/***/ }),
+
+/***/ "./node_modules/vm-browserify/index.js":
+/*!*********************************************!*\
+  !*** ./node_modules/vm-browserify/index.js ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+var indexOf = function (xs, item) {
+    if (xs.indexOf) return xs.indexOf(item);
+    else for (var i = 0; i < xs.length; i++) {
+        if (xs[i] === item) return i;
+    }
+    return -1;
+};
+var Object_keys = function (obj) {
+    if (Object.keys) return Object.keys(obj)
+    else {
+        var res = [];
+        for (var key in obj) res.push(key)
+        return res;
+    }
+};
+
+var forEach = function (xs, fn) {
+    if (xs.forEach) return xs.forEach(fn)
+    else for (var i = 0; i < xs.length; i++) {
+        fn(xs[i], i, xs);
+    }
+};
+
+var defineProp = (function() {
+    try {
+        Object.defineProperty({}, '_', {});
+        return function(obj, name, value) {
+            Object.defineProperty(obj, name, {
+                writable: true,
+                enumerable: false,
+                configurable: true,
+                value: value
+            })
+        };
+    } catch(e) {
+        return function(obj, name, value) {
+            obj[name] = value;
+        };
+    }
+}());
+
+var globals = ['Array', 'Boolean', 'Date', 'Error', 'EvalError', 'Function',
+'Infinity', 'JSON', 'Math', 'NaN', 'Number', 'Object', 'RangeError',
+'ReferenceError', 'RegExp', 'String', 'SyntaxError', 'TypeError', 'URIError',
+'decodeURI', 'decodeURIComponent', 'encodeURI', 'encodeURIComponent', 'escape',
+'eval', 'isFinite', 'isNaN', 'parseFloat', 'parseInt', 'undefined', 'unescape'];
+
+function Context() {}
+Context.prototype = {};
+
+var Script = exports.Script = function NodeScript (code) {
+    if (!(this instanceof Script)) return new Script(code);
+    this.code = code;
+};
+
+Script.prototype.runInContext = function (context) {
+    if (!(context instanceof Context)) {
+        throw new TypeError("needs a 'context' argument.");
+    }
+    
+    var iframe = document.createElement('iframe');
+    if (!iframe.style) iframe.style = {};
+    iframe.style.display = 'none';
+    
+    document.body.appendChild(iframe);
+    
+    var win = iframe.contentWindow;
+    var wEval = win.eval, wExecScript = win.execScript;
+
+    if (!wEval && wExecScript) {
+        // win.eval() magically appears when this is called in IE:
+        wExecScript.call(win, 'null');
+        wEval = win.eval;
+    }
+    
+    forEach(Object_keys(context), function (key) {
+        win[key] = context[key];
+    });
+    forEach(globals, function (key) {
+        if (context[key]) {
+            win[key] = context[key];
+        }
+    });
+    
+    var winKeys = Object_keys(win);
+
+    var res = wEval.call(win, this.code);
+    
+    forEach(Object_keys(win), function (key) {
+        // Avoid copying circular objects like `top` and `window` by only
+        // updating existing context properties or new properties in the `win`
+        // that was only introduced after the eval.
+        if (key in context || indexOf(winKeys, key) === -1) {
+            context[key] = win[key];
+        }
+    });
+
+    forEach(globals, function (key) {
+        if (!(key in context)) {
+            defineProp(context, key, win[key]);
+        }
+    });
+    
+    document.body.removeChild(iframe);
+    
+    return res;
+};
+
+Script.prototype.runInThisContext = function () {
+    return eval(this.code); // maybe...
+};
+
+Script.prototype.runInNewContext = function (context) {
+    var ctx = Script.createContext(context);
+    var res = this.runInContext(ctx);
+
+    if (context) {
+        forEach(Object_keys(ctx), function (key) {
+            context[key] = ctx[key];
+        });
+    }
+
+    return res;
+};
+
+forEach(Object_keys(Script.prototype), function (name) {
+    exports[name] = Script[name] = function (code) {
+        var s = Script(code);
+        return s[name].apply(s, [].slice.call(arguments, 1));
+    };
+});
+
+exports.isContext = function (context) {
+    return context instanceof Context;
+};
+
+exports.createScript = function (code) {
+    return exports.Script(code);
+};
+
+exports.createContext = Script.createContext = function (context) {
+    var copy = new Context();
+    if(typeof context === 'object') {
+        forEach(Object_keys(context), function (key) {
+            copy[key] = context[key];
+        });
+    }
+    return copy;
+};
+
 
 /***/ }),
 
