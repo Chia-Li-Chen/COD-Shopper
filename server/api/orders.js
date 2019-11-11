@@ -60,8 +60,6 @@ router.post('/', async (req, res, next) => {
 
 router.put('/updateOrder/:orderId/:totalPrice', async (req, res, next) => {
   try {
-    console.log('<<<<<<<req: ', req)
-    console.log('<<<<<<<params: ', req.params.orderId)
     const [numOfUpdates, updatedOrder] = await Order.update(
       {totalPrice: req.params.totalPrice},
       {
@@ -93,6 +91,37 @@ router.get('/orderItems/:orderId', async (req, res, next) => {
     next(error)
   }
 })
+
+router.put(
+  '/updateOrderItems/:orderId/:productId/:quantity',
+  async (req, res, next) => {
+    try {
+      console.log(
+        '>>>>>>>params: ',
+        req.params.orderId,
+        req.params.productId,
+        req.params.quantity
+      )
+      const [numOfUpdates, updatedOrderItems] = await OrderToItem.update(
+        {quantity: req.params.quantity},
+        {
+          where: {
+            orderId: req.params.orderId,
+            productId: req.params.productId
+          },
+          returning: true
+        }
+      )
+      if (updatedOrderItems) {
+        res.json(updatedOrderItems)
+      } else {
+        res.status(500).send('Not updated')
+      }
+    } catch (error) {
+      next(error)
+    }
+  }
+)
 
 //Add product to order item table
 //Updating order with new total price

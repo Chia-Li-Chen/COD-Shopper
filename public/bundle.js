@@ -752,6 +752,10 @@ function (_Component) {
         totalPrice: this.state.showTotalPrice
       };
       this.props.updateCart(order);
+
+      for (var i = 0; i < this.state.orderItems.length; i++) {
+        this.props.updateOrderItems(this.state.orderItems[i]);
+      }
     }
   }, {
     key: "calcTotalPrice",
@@ -898,10 +902,13 @@ var mapStateToProps = function mapStateToProps(state) {
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     updateCart: function updateCart(state) {
-      dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
     },
     getOrderItem: function getOrderItem(id) {
       return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(id));
+    },
+    updateOrderItems: function updateOrderItems(state) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateOrderItems"])(state));
     }
   };
 };
@@ -1414,7 +1421,7 @@ socket.on('connect', function () {
 /*!*******************************!*\
   !*** ./client/store/index.js ***!
   \*******************************/
-/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getOrderItem, getCart, updateCart, createCart, addToCart */
+/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, updateCart, getOrderItem, createCart, addToCart, updateOrderItems */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1451,7 +1458,9 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["addToCart"]; });
 
-/* empty/unused harmony star reexport */
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return _orderItems__WEBPACK_IMPORTED_MODULE_7__["updateOrderItems"]; });
+
+
 
 
 
@@ -1804,14 +1813,21 @@ var addToCart = function addToCart() {
 /*!************************************!*\
   !*** ./client/store/orderItems.js ***!
   \************************************/
-/*! exports provided: getOrderItem, default */
+/*! exports provided: getOrderItem, updateOrderItems, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return updateOrderItems; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
@@ -1830,6 +1846,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  */
 
 var GET_ORDERITEM = 'GET_ORDERITEM';
+var UPDATE_ORDERITEM = 'UPDATE_ORDERITEM';
 /**
  * INITIAL STATE
  */
@@ -1842,6 +1859,13 @@ var defaultOrderItem = [];
 var getOrderItemAction = function getOrderItemAction(orderItems) {
   return {
     type: GET_ORDERITEM,
+    orderItems: orderItems
+  };
+};
+
+var updateOrderItemsAction = function updateOrderItemsAction(orderItems) {
+  return {
+    type: UPDATE_ORDERITEM,
     orderItems: orderItems
   };
 };
@@ -1891,6 +1915,47 @@ var getOrderItem = function getOrderItem(orderId) {
     }()
   );
 };
+var updateOrderItems = function updateOrderItems(orderItem) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref2 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.prev = 0;
+                _context2.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.put("/api/orders/updateOrderItems/".concat(orderItem.orderId, "/").concat(orderItem.productId, "/").concat(orderItem.quantity));
+
+              case 3:
+                response = _context2.sent;
+                dispatch(updateOrderItemsAction(response.data));
+                _context2.next = 10;
+                break;
+
+              case 7:
+                _context2.prev = 7;
+                _context2.t0 = _context2["catch"](0);
+                console.error(_context2.t0);
+
+              case 10:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, null, [[0, 7]]);
+      }));
+
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }()
+  );
+};
 /**
  * REDUCER
  */
@@ -1903,6 +1968,20 @@ var getOrderItem = function getOrderItem(orderId) {
   switch (action.type) {
     case GET_ORDERITEM:
       return [].concat(_toConsumableArray(state), _toConsumableArray(action.orderItems));
+
+    case UPDATE_ORDERITEM:
+      {
+        var updatedOrderItem = state.orderItems.map(function (orderItem) {
+          if (orderItem.orderId === action.orderItem.orderId && orderItem.productId === action.orderItem.productId) {
+            return action.orderItem;
+          } else {
+            return orderItem;
+          }
+        });
+        return _objectSpread({}, state, {
+          updatedOrderItem: updatedOrderItem
+        });
+      }
 
     default:
       return state;

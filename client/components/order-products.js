@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
-import {updateCart, getOrderItem} from '../store'
+import {updateCart, getOrderItem, updateOrderItems} from '../store'
 
 class OrderProducts extends Component {
   constructor(props) {
@@ -38,6 +38,9 @@ class OrderProducts extends Component {
       totalPrice: this.state.showTotalPrice
     }
     this.props.updateCart(order)
+    for (let i = 0; i < this.state.orderItems.length; i++) {
+      this.props.updateOrderItems(this.state.orderItems[i])
+    }
   }
 
   calcTotalPrice() {
@@ -182,13 +185,11 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    updateCart: state => {
-      dispatch(updateCart(state))
-    },
-    getOrderItem: id => dispatch(getOrderItem(id))
+    updateCart: state => dispatch(updateCart(state)),
+    getOrderItem: id => dispatch(getOrderItem(id)),
+    updateOrderItems: state => dispatch(updateOrderItems(state))
   }
 }
-
 const ConnectedOrderProducts = connect(mapStateToProps, mapDispatchToProps)(
   OrderProducts
 )
