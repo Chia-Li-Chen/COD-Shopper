@@ -169,13 +169,13 @@ const orderProducts = [
   },
   {
     orderId: 2,
-    productId: 2,
+    productId: 3,
     quantity: 2
   },
   {
     orderId: 2,
-    productId: 3,
-    quantity: 4
+    productId: 6,
+    quantity: 1
   },
   {
     orderId: 3,
