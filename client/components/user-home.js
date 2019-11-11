@@ -58,6 +58,7 @@ const mapState = state => {
     email: state.user.email,
     userId: state.user.id,
     orderSubmittedDate: state.order[0].orderSubmittedDate,
+    orderId: state.order.id,
     orders: state.order
   }
 }
@@ -73,6 +74,4 @@ export default connect(mapState, mapDispatch)(UserHome)
 /**
  * PROP TYPES
  */
-UserHome.propTypes = {
-  // email: PropTypes.string
-}
+UserHome.propTypes = {}
