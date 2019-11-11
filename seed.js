@@ -192,12 +192,12 @@ const orderProducts = [
     quantity: 3
   },
   {
-    orderId: 1,
+    orderId: 2,
     productId: 3,
     quantity: 2
   },
   {
-    orderId: 1,
+    orderId: 2,
     productId: 6,
     quantity: 1
   },

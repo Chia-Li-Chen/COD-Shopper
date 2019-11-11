@@ -27,6 +27,7 @@ const AuthForm = props => {
     const formName = evt.target.name
     const email = evt.target.email.value
     const password = evt.target.password.value
+
     await props.auth(email, password, formName)
   }
   return (
