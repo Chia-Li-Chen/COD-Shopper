@@ -655,6 +655,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -675,12 +687,6 @@ function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || func
 
 
 
-var defaultState = {
-  totalPrice: 0,
-  itemQuantity: {},
-  showTotalPrice: 0,
-  itemPrice: {}
-};
 
 var OrderProducts =
 /*#__PURE__*/
@@ -693,53 +699,151 @@ function (_Component) {
     _classCallCheck(this, OrderProducts);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(OrderProducts).call(this, props));
-    _this.state = defaultState;
+    _this.state = {
+      totalPrice: _this.props.order[0].totalPrice,
+      products: _this.props.order[0].products,
+      showTotalPrice: _this.props.order[0].totalPrice,
+      orderItems: _toConsumableArray(_this.props.orderItems),
+      orders: _this.props.order
+    };
     _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
-    _this.showTotalPrice = _this.showTotalPrice.bind(_assertThisInitialized(_this));
+    _this.calcTotalPrice = _this.calcTotalPrice.bind(_assertThisInitialized(_this));
     _this.increment = _this.increment.bind(_assertThisInitialized(_this));
     _this.decrement = _this.decrement.bind(_assertThisInitialized(_this));
+    _this.getQuantity = _this.getQuantity.bind(_assertThisInitialized(_this));
     return _this;
   }
 
   _createClass(OrderProducts, [{
     key: "componentDidMount",
-    value: function componentDidMount() {
-      this.setState({
-        totalPrice: this.props.order[0].totalPrice
-      });
-      this.setState({
-        itemQuantity: this.props.order[0].products
-      }); // this.props.order[0].products.map(product => {
-      //   this.setState({totalPrice:[product.id]: product.quantity})
-      // })
-    }
+    value: function () {
+      var _componentDidMount = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return this.props.getOrderItem(this.props.order[0].id);
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function componentDidMount() {
+        return _componentDidMount.apply(this, arguments);
+      }
+
+      return componentDidMount;
+    }()
   }, {
     key: "handleSubmit",
     value: function handleSubmit(event) {
       event.preventDefault();
-      this.props.updateCart(this.state);
+      console.log('this.props: ', this.props);
+      console.log('this.state.orders: ', this.state.orders[0].id);
+      var order = {
+        id: this.state.orders[0].id,
+        totalPrice: this.state.showTotalPrice
+      };
+      this.props.updateCart(order);
+
+      for (var i = 0; i < this.state.orderItems.length; i++) {
+        this.props.updateOrderItems(this.state.orderItems[i]);
+      }
     }
   }, {
-    key: "showTotalPrice",
-    value: function showTotalPrice() {}
+    key: "calcTotalPrice",
+    value: function calcTotalPrice() {
+      var _this2 = this;
+
+      var totalPriceShown = this.state.products.reduce(function (acc, product) {
+        var subtotal = product.price * _this2.getQuantity(product.id);
+
+        return acc + subtotal;
+      }, 0);
+      this.setState({
+        showTotalPrice: totalPriceShown
+      });
+    }
   }, {
     key: "increment",
-    value: function increment() {}
+    value: function increment(productId) {
+      var productToUpdate = this.state.products.filter(function (product) {
+        return product.id === productId;
+      });
+      var quantity = this.getQuantity(productId);
+      var price = productToUpdate[0].price;
+      quantity = quantity + 1;
+      price = price * quantity;
+      var newOrderItems = this.props.orderItems.map(function (orderitem) {
+        if (orderitem.productId === productId) {
+          orderitem.quantity = quantity;
+        }
+
+        return orderitem;
+      });
+      this.setState({
+        orderItems: newOrderItems
+      });
+      this.calcTotalPrice();
+    }
   }, {
     key: "decrement",
-    value: function decrement(productId) {}
+    value: function decrement(productId) {
+      var productToUpdate = this.state.products.filter(function (product) {
+        return product.id === productId;
+      });
+      var quantity = this.getQuantity(productId);
+      var price = productToUpdate[0].price;
+
+      if (quantity > 0) {
+        quantity = quantity - 1;
+      }
+
+      price = price * quantity;
+      var newOrderItems = this.props.orderItems.map(function (orderitem) {
+        if (orderitem.productId === productId) {
+          orderitem.quantity = quantity;
+        }
+
+        return orderitem;
+      });
+      this.setState({
+        orderItems: newOrderItems
+      });
+      this.calcTotalPrice();
+    }
+  }, {
+    key: "getQuantity",
+    value: function getQuantity(productId) {
+      var quantity = this.props.orderItems.filter(function (orderItem) {
+        return orderItem.productId === productId;
+      }).map(function (orderItem) {
+        return orderItem.quantity;
+      })[0];
+      return quantity;
+    }
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
       console.log('this.state: ', this.state);
+      console.log('this.props: ', this.state.orders[0]);
 
       if (this.props.order) {
-        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.totalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
-          type: "button",
-          className: "checkout"
-        }, "Save"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, this.props.order[0].products.map(function (product) {
+        return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
+          onSubmit: this.handleSubmit
+        }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.showTotalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
+          type: "submit",
+          className: "save"
+        }, "Save"), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, this.state.products.map(function (product) {
           return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
             key: product.id
           }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
@@ -759,23 +863,28 @@ function (_Component) {
           }, product.name), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
             type: "button",
             value: product.id,
-            onClick: _this2.props.deleteProductHandler,
+            onClick: _this3.props.deleteProductHandler,
             className: "deleteButton"
           }, "Delete"))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
             className: "productQuantity"
-          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Quantity: ", product.order_to_item.quantity), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Quantity: ", _this3.getQuantity(product.id)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
             type: "button",
             name: "decrease",
             value: "-",
-            onClick: _this2.decrement(product.id)
+            onClick: function onClick() {
+              _this3.decrement(product.id);
+            }
           }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
             type: "button",
             name: "increase",
-            value: "+"
+            value: "+",
+            onClick: function onClick() {
+              _this3.increment(product.id);
+            }
           }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
             className: "productPrice"
-          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100))));
-        })));
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Price per item: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Subtotal: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price * _this3.getQuantity(product.id) / 100))));
+        }))));
       } else {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your cart is empty ");
       }
@@ -787,14 +896,21 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    order: state.order
+    order: state.order,
+    orderItems: state.orderItem
   };
 };
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
     updateCart: function updateCart(state) {
-      dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateCart"])(state));
+    },
+    getOrderItem: function getOrderItem(id) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(id));
+    },
+    updateOrderItems: function updateOrderItems(state) {
+      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["updateOrderItems"])(state));
     }
   };
 };
@@ -1084,7 +1200,8 @@ var mapState = function mapState(state) {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order[0].orderSubmittedDate,
+    orderSubmittedDate: state.order.orderSubmittedDate,
+    orderId: state.order.id,
     orders: state.order
   };
 };
@@ -1108,8 +1225,7 @@ var mapDispatch = function mapDispatch(dispatch) {
  * PROP TYPES
  */
 
-UserHome.propTypes = {// email: PropTypes.string
-};
+UserHome.propTypes = {};
 
 /***/ }),
 
@@ -1324,7 +1440,7 @@ socket.on('connect', function () {
 /*!*******************************!*\
   !*** ./client/store/index.js ***!
   \*******************************/
-/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, deleteProductFromCart, getCart, createCart, addToCart */
+/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, getCart, deleteProductFromCart, updateCart, getOrderItem, createCart, addToCart, updateOrderItems */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1338,6 +1454,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _user__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./user */ "./client/store/user.js");
 /* harmony import */ var _product__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./product */ "./client/store/product.js");
 /* harmony import */ var _order__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./order */ "./client/store/order.js");
+/* harmony import */ var _orderItems__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./orderItems */ "./client/store/orderItems.js");
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "me", function() { return _user__WEBPACK_IMPORTED_MODULE_4__["me"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "auth", function() { return _user__WEBPACK_IMPORTED_MODULE_4__["auth"]; });
@@ -1350,13 +1467,20 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "fetchProduct", function() { return _product__WEBPACK_IMPORTED_MODULE_5__["fetchProduct"]; });
 
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getCart"]; });
+
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["deleteProductFromCart"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getCart"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["updateCart"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["getOrderItem"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["createCart"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["addToCart"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return _orderItems__WEBPACK_IMPORTED_MODULE_7__["updateOrderItems"]; });
+
 
 
 
@@ -1368,7 +1492,8 @@ __webpack_require__.r(__webpack_exports__);
 var reducer = Object(redux__WEBPACK_IMPORTED_MODULE_0__["combineReducers"])({
   user: _user__WEBPACK_IMPORTED_MODULE_4__["default"],
   products: _product__WEBPACK_IMPORTED_MODULE_5__["default"],
-  order: _order__WEBPACK_IMPORTED_MODULE_6__["default"]
+  order: _order__WEBPACK_IMPORTED_MODULE_6__["default"],
+  orderItem: _orderItems__WEBPACK_IMPORTED_MODULE_7__["default"]
 });
 var middleware = Object(redux_devtools_extension__WEBPACK_IMPORTED_MODULE_3__["composeWithDevTools"])(Object(redux__WEBPACK_IMPORTED_MODULE_0__["applyMiddleware"])(redux_thunk__WEBPACK_IMPORTED_MODULE_2__["default"], Object(redux_logger__WEBPACK_IMPORTED_MODULE_1__["createLogger"])({
   collapsed: true
@@ -1379,19 +1504,22 @@ var store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, m
 
 
 
+
 /***/ }),
 
 /***/ "./client/store/order.js":
 /*!*******************************!*\
   !*** ./client/store/order.js ***!
   \*******************************/
-/*! exports provided: deleteProductFromCart, getCart, createCart, addToCart, default */
+/*! exports provided: getCart, deleteProductFromCart, updateCart, getOrderItem, createCart, addToCart, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return deleteProductFromCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return getCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return deleteProductFromCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateCart", function() { return updateCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return createCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return addToCart; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
@@ -1415,20 +1543,16 @@ var CREATE_CART = 'CREATE_CART';
 var ADD_TO_CART = 'ADD_TO_CART';
 var GET_CART = 'GET_CART';
 var DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART';
+var GET_ORDERITEM = 'GET_ORDERITEM';
+var UPDATE_CART = 'UPDATE_CART';
 /**
  * INITIAL STATE
  */
 
-var defaultOrder = {
-  0: {
-    totalPrice: 0,
-    products: []
-  }
-  /**
-   * ACTION CREATORS
-   */
-
-};
+var defaultOrder = {};
+/**
+ * ACTION CREATORS
+ */
 
 var createCartAction = function createCartAction(totalPrice) {
   return {
@@ -1451,15 +1575,23 @@ var getCartAction = function getCartAction(orderProducts) {
   };
 };
 
-var deleteProductFromCart = function deleteProductFromCart(id) {
+var getOrderItemAction = function getOrderItemAction(orderItems) {
   return {
-    type: DELETE_PRODUCT_FROM_CART,
-    itemId: id
+    type: GET_ORDERITEM,
+    orderItems: orderItems
+  };
+};
+
+var updateCartAction = function updateCartAction(order) {
+  return {
+    type: UPDATE_CART,
+    order: order
   };
 };
 /**
  * THUNK CREATORS
  */
+
 
 var getCart = function getCart(userId) {
   return (
@@ -1502,7 +1634,13 @@ var getCart = function getCart(userId) {
     }()
   );
 };
-var createCart = function createCart(userId) {
+var deleteProductFromCart = function deleteProductFromCart(id) {
+  return {
+    type: DELETE_PRODUCT_FROM_CART,
+    itemId: id
+  };
+};
+var updateCart = function updateCart(order) {
   return (
     /*#__PURE__*/
     function () {
@@ -1516,13 +1654,11 @@ var createCart = function createCart(userId) {
               case 0:
                 _context2.prev = 0;
                 _context2.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/orders/", {
-                  userId: userId
-                });
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.put("/api/orders/updateOrder/".concat(order.id, "/").concat(order.totalPrice));
 
               case 3:
                 response = _context2.sent;
-                dispatch(createCartAction(response.data));
+                dispatch(updateCartAction(response.data));
                 _context2.next = 10;
                 break;
 
@@ -1545,7 +1681,7 @@ var createCart = function createCart(userId) {
     }()
   );
 };
-var addToCart = function addToCart() {
+var getOrderItem = function getOrderItem(orderId) {
   return (
     /*#__PURE__*/
     function () {
@@ -1559,11 +1695,11 @@ var addToCart = function addToCart() {
               case 0:
                 _context3.prev = 0;
                 _context3.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orderstoitems/');
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems/".concat(orderId));
 
               case 3:
                 response = _context3.sent;
-                dispatch(addToCartAction(response.data));
+                dispatch(getOrderItemAction(response.data));
                 _context3.next = 10;
                 break;
 
@@ -1582,6 +1718,90 @@ var addToCart = function addToCart() {
 
       return function (_x3) {
         return _ref3.apply(this, arguments);
+      };
+    }()
+  );
+};
+var createCart = function createCart(userId) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref4 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee4(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.prev = 0;
+                _context4.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post("/api/orders/", {
+                  userId: userId
+                });
+
+              case 3:
+                response = _context4.sent;
+                dispatch(createCartAction(response.data));
+                _context4.next = 10;
+                break;
+
+              case 7:
+                _context4.prev = 7;
+                _context4.t0 = _context4["catch"](0);
+                console.error(_context4.t0);
+
+              case 10:
+              case "end":
+                return _context4.stop();
+            }
+          }
+        }, _callee4, null, [[0, 7]]);
+      }));
+
+      return function (_x4) {
+        return _ref4.apply(this, arguments);
+      };
+    }()
+  );
+};
+var addToCart = function addToCart() {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref5 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee5(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee5$(_context5) {
+          while (1) {
+            switch (_context5.prev = _context5.next) {
+              case 0:
+                _context5.prev = 0;
+                _context5.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orderstoitems/');
+
+              case 3:
+                response = _context5.sent;
+                dispatch(addToCartAction(response.data));
+                _context5.next = 10;
+                break;
+
+              case 7:
+                _context5.prev = 7;
+                _context5.t0 = _context5["catch"](0);
+                console.error(_context5.t0);
+
+              case 10:
+              case "end":
+                return _context5.stop();
+            }
+          }
+        }, _callee5, null, [[0, 7]]);
+      }));
+
+      return function (_x5) {
+        return _ref5.apply(this, arguments);
       };
     }()
   );
@@ -1607,12 +1827,197 @@ var addToCart = function addToCart() {
 
     case DELETE_PRODUCT_FROM_CART:
       return _objectSpread({}, state, {
-        0: _objectSpread({}, state[0], {
-          products: state[0].products.filter(function (item) {
-            return item.id !== action.itemId;
-          })
+        orderItems: state.orderItems.filter(function (product) {
+          return product.id !== action.itemId;
         })
       });
+
+    case GET_ORDERITEM:
+      return _objectSpread({}, state, {}, action.orderItems);
+
+    case UPDATE_CART:
+      return _objectSpread({}, state, {}, action.orderItems);
+
+    default:
+      return state;
+  }
+});
+
+/***/ }),
+
+/***/ "./client/store/orderItems.js":
+/*!************************************!*\
+  !*** ./client/store/orderItems.js ***!
+  \************************************/
+/*! exports provided: getOrderItem, updateOrderItems, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateOrderItems", function() { return updateOrderItems; });
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+/*
+ * ACTION TYPES
+ */
+
+var GET_ORDERITEM = 'GET_ORDERITEM';
+var UPDATE_ORDERITEM = 'UPDATE_ORDERITEM';
+/**
+ * INITIAL STATE
+ */
+
+var defaultOrderItem = [];
+/**
+ * ACTION CREATORS
+ */
+
+var getOrderItemAction = function getOrderItemAction(orderItems) {
+  return {
+    type: GET_ORDERITEM,
+    orderItems: orderItems
+  };
+};
+
+var updateOrderItemsAction = function updateOrderItemsAction(orderItems) {
+  return {
+    type: UPDATE_ORDERITEM,
+    orderItems: orderItems
+  };
+};
+/**
+ * THUNK CREATORS
+ */
+
+
+var getOrderItem = function getOrderItem(orderId) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.prev = 0;
+                _context.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.get("/api/orders/orderItems/".concat(orderId));
+
+              case 3:
+                response = _context.sent;
+                dispatch(getOrderItemAction(response.data));
+                _context.next = 10;
+                break;
+
+              case 7:
+                _context.prev = 7;
+                _context.t0 = _context["catch"](0);
+                console.error(_context.t0);
+
+              case 10:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, null, [[0, 7]]);
+      }));
+
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }()
+  );
+};
+var updateOrderItems = function updateOrderItems(orderItem) {
+  return (
+    /*#__PURE__*/
+    function () {
+      var _ref2 = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee2(dispatch) {
+        var response;
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                _context2.prev = 0;
+                _context2.next = 3;
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.put("/api/orders/updateOrderItems/".concat(orderItem.orderId, "/").concat(orderItem.productId, "/").concat(orderItem.quantity));
+
+              case 3:
+                response = _context2.sent;
+                dispatch(updateOrderItemsAction(response.data));
+                _context2.next = 10;
+                break;
+
+              case 7:
+                _context2.prev = 7;
+                _context2.t0 = _context2["catch"](0);
+                console.error(_context2.t0);
+
+              case 10:
+              case "end":
+                return _context2.stop();
+            }
+          }
+        }, _callee2, null, [[0, 7]]);
+      }));
+
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
+      };
+    }()
+  );
+};
+/**
+ * REDUCER
+ */
+
+/* harmony default export */ __webpack_exports__["default"] = (function () {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultOrderItem;
+  var action = arguments.length > 1 ? arguments[1] : undefined;
+  Object.freeze(state);
+
+  switch (action.type) {
+    case GET_ORDERITEM:
+      return [].concat(_toConsumableArray(state), _toConsumableArray(action.orderItems));
+
+    case UPDATE_ORDERITEM:
+      {
+        var updatedOrderItem = state.orderItems.map(function (orderItem) {
+          if (orderItem.orderId === action.orderItem.orderId && orderItem.productId === action.orderItem.productId) {
+            return action.orderItem;
+          } else {
+            return orderItem;
+          }
+        });
+        return _objectSpread({}, state, {
+          updatedOrderItem: updatedOrderItem
+        });
+      }
 
     default:
       return state;
@@ -1656,8 +2061,7 @@ var FETCH_PRODUCT = 'FETCH_PRODUCT';
  */
 
 var initialState = {
-  productList: [],
-  cart: {}
+  productList: []
   /**
    * ACTION CREATORS
    */
@@ -45578,7 +45982,7 @@ function warning(message) {
 /*!***************************************************************!*\
   !*** ./node_modules/react-router-dom/esm/react-router-dom.js ***!
   \***************************************************************/
-/*! exports provided: MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext, BrowserRouter, HashRouter, Link, NavLink */
+/*! exports provided: BrowserRouter, HashRouter, Link, NavLink, MemoryRouter, Prompt, Redirect, Route, Router, StaticRouter, Switch, generatePath, matchPath, withRouter, __RouterContext */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

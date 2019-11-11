@@ -10,8 +10,7 @@ const FETCH_PRODUCT = 'FETCH_PRODUCT'
  * INITIAL STATE
  */
 const initialState = {
-  productList: [],
-  cart: {}
+  productList: []
 }
 
 /**
