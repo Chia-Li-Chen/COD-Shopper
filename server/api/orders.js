@@ -58,6 +58,26 @@ router.post('/', async (req, res, next) => {
   }
 })
 
+router.put('/:orderId', async (req, res, next) => {
+  try {
+    console.log('req.body: ', req.body)
+    const [numOfUpdates, updatedOrder] = await Order.update(
+      {totalPrice: req.body.totalPrice},
+      {
+        where: {id: req.params.orderId},
+        returning: true
+      }
+    )
+    if (updatedOrder) {
+      res.json(updatedOrder[0].dataValues)
+    } else {
+      res.status(500).send('Not updated')
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.get('/orderItems/:orderId', async (req, res, next) => {
   try {
     console.log('<<<<<<req.body: ', req.body)

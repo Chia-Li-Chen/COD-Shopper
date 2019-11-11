@@ -7,7 +7,8 @@ const defaultState = {
   totalPrice: 0,
   products: [],
   showTotalPrice: 0,
-  orderToItem: []
+  orderItems: [],
+  orders: {}
 }
 
 class OrderProducts extends Component {
@@ -18,12 +19,14 @@ class OrderProducts extends Component {
     this.calcTotalPrice = this.calcTotalPrice.bind(this)
     this.increment = this.increment.bind(this)
     this.decrement = this.decrement.bind(this)
+    this.getQuantity = this.getQuantity.bind(this)
   }
 
   async componentDidMount() {
     this.setState({totalPrice: this.props.order[0].totalPrice})
     this.setState({products: this.props.order[0].products})
     this.setState({showTotalPrice: this.props.order[0].totalPrice})
+    this.setState({orderItems: [...this.props.orderItems]})
     await this.props.getOrderItem(this.props.order[0].id)
   }
 
@@ -34,30 +37,65 @@ class OrderProducts extends Component {
 
   calcTotalPrice() {
     let totalPriceShown = this.state.products.reduce((acc, product) => {
-      let subtotal = product.price * product.order_to_item.quantity
+      let subtotal = product.price * this.getQuantity(product.id)
       return acc + subtotal
     }, 0)
     this.setState({showTotalPrice: totalPriceShown})
   }
 
-  increment(productId) {}
+  increment(productId) {
+    let productToUpdate = this.state.products.filter(
+      product => product.id === productId
+    )
+
+    let quantity = this.getQuantity(productId)
+    let price = productToUpdate[0].price
+
+    quantity = quantity + 1
+
+    price = price * quantity
+    let newOrderItems = this.props.orderItems.map(orderitem => {
+      if (orderitem.productId === productId) {
+        orderitem.quantity = quantity
+      }
+      return orderitem
+    })
+    this.setState({orderItems: newOrderItems})
+
+    this.calcTotalPrice()
+  }
 
   decrement(productId) {
     let productToUpdate = this.state.products.filter(
       product => product.id === productId
     )
-    let quantity = productToUpdate[0].order_to_item.quantity
+
+    let quantity = this.getQuantity(productId)
+
     let price = productToUpdate[0].price
-    quantity = quantity < 1 ? quantity : quantity - 1
+    if (quantity > 0) {
+      quantity = quantity - 1
+    }
     price = price * quantity
+    let newOrderItems = this.props.orderItems.map(orderitem => {
+      if (orderitem.productId === productId) {
+        orderitem.quantity = quantity
+      }
+      return orderitem
+    })
+    this.setState({orderItems: newOrderItems})
     this.calcTotalPrice()
-    console.log('price: ', price)
-    console.log('quantity: ', quantity)
-    console.log('productToUpdate: ', productToUpdate)
+  }
+
+  getQuantity(productId) {
+    let quantity = this.props.orderItems
+      .filter(orderItem => orderItem.productId === productId)
+      .map(orderItem => orderItem.quantity)[0]
+    return quantity
   }
 
   render() {
-    console.log('this.props: ', this.props.order[0].id)
+    console.log('this.props: ', this.state)
     if (this.props.order) {
       return (
         <div>
@@ -86,7 +124,7 @@ class OrderProducts extends Component {
                       </div>
                     </div>
                     <div className="productQuantity">
-                      <label>Quantity: {product.order_to_item.quantity}</label>
+                      <label>Quantity: {this.getQuantity(product.id)}</label>
                       <input
                         type="button"
                         name="decrease"
@@ -110,7 +148,7 @@ class OrderProducts extends Component {
                     <h5>${product.price / 100}</h5>
                     <label>Subtotal: </label>
                     <h5>
-                      ${product.price * product.order_to_item.quantity / 100}
+                      ${product.price * this.getQuantity(product.id) / 100}
                     </h5>
                   </div>
                 </div>
@@ -126,7 +164,10 @@ class OrderProducts extends Component {
 }
 
 const mapStateToProps = state => {
-  return {order: state.order}
+  return {
+    order: state.order,
+    orderItems: state.orderItem
+  }
 }
 
 const mapDispatchToProps = dispatch => {

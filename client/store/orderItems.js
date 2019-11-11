@@ -8,7 +8,7 @@ const GET_ORDERITEM = 'GET_ORDERITEM'
 /**
  * INITIAL STATE
  */
-const defaultOrderItem = {}
+const defaultOrderItem = []
 
 /**
  * ACTION CREATORS
@@ -36,7 +36,7 @@ export default function(state = defaultOrderItem, action) {
   Object.freeze(state)
   switch (action.type) {
     case GET_ORDERITEM:
-      return {...state, ...action.orderItems}
+      return [...state, ...action.orderItems]
     default:
       return state
   }

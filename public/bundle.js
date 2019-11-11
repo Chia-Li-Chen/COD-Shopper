@@ -655,6 +655,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store */ "./client/store/index.js");
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -683,7 +691,8 @@ var defaultState = {
   totalPrice: 0,
   products: [],
   showTotalPrice: 0,
-  orderToItem: []
+  orderItems: [],
+  orders: {}
 };
 
 var OrderProducts =
@@ -702,6 +711,7 @@ function (_Component) {
     _this.calcTotalPrice = _this.calcTotalPrice.bind(_assertThisInitialized(_this));
     _this.increment = _this.increment.bind(_assertThisInitialized(_this));
     _this.decrement = _this.decrement.bind(_assertThisInitialized(_this));
+    _this.getQuantity = _this.getQuantity.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -724,10 +734,13 @@ function (_Component) {
                 this.setState({
                   showTotalPrice: this.props.order[0].totalPrice
                 });
-                _context.next = 5;
+                this.setState({
+                  orderItems: _toConsumableArray(this.props.orderItems)
+                });
+                _context.next = 6;
                 return this.props.getOrderItem(this.props.order[0].id);
 
-              case 5:
+              case 6:
               case "end":
                 return _context.stop();
             }
@@ -750,8 +763,11 @@ function (_Component) {
   }, {
     key: "calcTotalPrice",
     value: function calcTotalPrice() {
+      var _this2 = this;
+
       var totalPriceShown = this.state.products.reduce(function (acc, product) {
-        var subtotal = product.price * product.order_to_item.quantity;
+        var subtotal = product.price * _this2.getQuantity(product.id);
+
         return acc + subtotal;
       }, 0);
       this.setState({
@@ -760,28 +776,68 @@ function (_Component) {
     }
   }, {
     key: "increment",
-    value: function increment(productId) {}
+    value: function increment(productId) {
+      var productToUpdate = this.state.products.filter(function (product) {
+        return product.id === productId;
+      });
+      var quantity = this.getQuantity(productId);
+      var price = productToUpdate[0].price;
+      quantity = quantity + 1;
+      price = price * quantity;
+      var newOrderItems = this.props.orderItems.map(function (orderitem) {
+        if (orderitem.productId === productId) {
+          orderitem.quantity = quantity;
+        }
+
+        return orderitem;
+      });
+      this.setState({
+        orderItems: newOrderItems
+      });
+      this.calcTotalPrice();
+    }
   }, {
     key: "decrement",
     value: function decrement(productId) {
       var productToUpdate = this.state.products.filter(function (product) {
         return product.id === productId;
       });
-      var quantity = productToUpdate[0].order_to_item.quantity;
+      var quantity = this.getQuantity(productId);
       var price = productToUpdate[0].price;
-      quantity = quantity < 1 ? quantity : quantity - 1;
+
+      if (quantity > 0) {
+        quantity = quantity - 1;
+      }
+
       price = price * quantity;
+      var newOrderItems = this.props.orderItems.map(function (orderitem) {
+        if (orderitem.productId === productId) {
+          orderitem.quantity = quantity;
+        }
+
+        return orderitem;
+      });
+      this.setState({
+        orderItems: newOrderItems
+      });
       this.calcTotalPrice();
-      console.log('price: ', price);
-      console.log('quantity: ', quantity);
-      console.log('productToUpdate: ', productToUpdate);
+    }
+  }, {
+    key: "getQuantity",
+    value: function getQuantity(productId) {
+      var quantity = this.props.orderItems.filter(function (orderItem) {
+        return orderItem.productId === productId;
+      }).map(function (orderItem) {
+        return orderItem.quantity;
+      })[0];
+      return quantity;
     }
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
-      console.log('this.props: ', this.props.order[0].id);
+      console.log('this.props: ', this.state);
 
       if (this.props.order) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "Total Price: $", this.state.showTotalPrice / 100, " "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
@@ -809,23 +865,23 @@ function (_Component) {
             className: "deleteButton"
           }, "Delete"))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
             className: "productQuantity"
-          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Quantity: ", product.order_to_item.quantity), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Quantity: ", _this3.getQuantity(product.id)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
             type: "button",
             name: "decrease",
             value: "-",
             onClick: function onClick() {
-              _this2.decrement(product.id);
+              _this3.decrement(product.id);
             }
           }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
             type: "button",
             name: "increase",
             value: "+",
             onClick: function onClick() {
-              _this2.increment(product.id);
+              _this3.increment(product.id);
             }
           }))), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
             className: "productPrice"
-          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Price per item: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Subtotal: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price * product.order_to_item.quantity / 100))));
+          }, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Price per item: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price / 100), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Subtotal: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h5", null, "$", product.price * _this3.getQuantity(product.id) / 100))));
         })));
       } else {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your cart is empty ");
@@ -838,7 +894,8 @@ function (_Component) {
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
-    order: state.order
+    order: state.order,
+    orderItems: state.orderItem
   };
 };
 
@@ -1105,7 +1162,6 @@ function (_React$Component) {
     key: "render",
     value: function render() {
       var order = this.props.orders[0];
-      console.log('>>>>>>>order sumbitted date and order id: ', this.props.orderSubmittedDate, ' and ', this.props.orders[0]);
 
       if (order) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h3", null, "Welcome, ", this.props.user.firstName), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "Your Shopping Cart: "), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_order_products__WEBPACK_IMPORTED_MODULE_4__["default"], {
@@ -1142,9 +1198,6 @@ var mapDispatch = function mapDispatch(dispatch) {
     },
     createCart: function createCart(id) {
       return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["createCart"])(id));
-    },
-    getOrderItem: function getOrderItem(id) {
-      return dispatch(Object(_store__WEBPACK_IMPORTED_MODULE_3__["getOrderItem"])(id));
     }
   };
 };
@@ -1154,8 +1207,7 @@ var mapDispatch = function mapDispatch(dispatch) {
  * PROP TYPES
  */
 
-UserHome.propTypes = {// email: PropTypes.string
-};
+UserHome.propTypes = {};
 
 /***/ }),
 
@@ -1708,11 +1760,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getOrderItem", function() { return getOrderItem; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -1728,7 +1782,7 @@ var GET_ORDERITEM = 'GET_ORDERITEM';
  * INITIAL STATE
  */
 
-var defaultOrderItem = {};
+var defaultOrderItem = [];
 /**
  * ACTION CREATORS
  */
@@ -1796,7 +1850,7 @@ var getOrderItem = function getOrderItem(orderId) {
 
   switch (action.type) {
     case GET_ORDERITEM:
-      return _objectSpread({}, state, {}, action.orderItems);
+      return [].concat(_toConsumableArray(state), _toConsumableArray(action.orderItems));
 
     default:
       return state;
