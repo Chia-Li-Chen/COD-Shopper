@@ -58,11 +58,12 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-router.put('/:orderId', async (req, res, next) => {
+router.put('/updateOrder/:orderId/:totalPrice', async (req, res, next) => {
   try {
-    console.log('req.body: ', req.body)
+    console.log('<<<<<<<req: ', req)
+    console.log('<<<<<<<params: ', req.params.orderId)
     const [numOfUpdates, updatedOrder] = await Order.update(
-      {totalPrice: req.body.totalPrice},
+      {totalPrice: req.params.totalPrice},
       {
         where: {id: req.params.orderId},
         returning: true

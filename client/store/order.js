@@ -7,6 +7,7 @@ const CREATE_CART = 'CREATE_CART'
 const ADD_TO_CART = 'ADD_TO_CART'
 const GET_CART = 'GET_CART'
 const GET_ORDERITEM = 'GET_ORDERITEM'
+const UPDATE_CART = 'UPDATE_CART'
 
 /**
  * INITIAL STATE
@@ -21,6 +22,7 @@ const createCartAction = totalPrice => ({type: CREATE_CART, totalPrice})
 const addToCartAction = order => ({type: ADD_TO_CART, order})
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
+const updateCartAction = order => ({type: UPDATE_CART, order})
 
 /**
  * THUNK CREATORS
@@ -30,6 +32,17 @@ export const getCart = userId => async dispatch => {
   try {
     const response = await axios.get(`/api/orders/${userId}/getCart`)
     dispatch(getCartAction(response.data))
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const updateCart = order => async dispatch => {
+  try {
+    const response = await axios.put(
+      `/api/orders/updateOrder/${order.id}/${order.totalPrice}`
+    )
+    dispatch(updateCartAction(response.data))
   } catch (err) {
     console.error(err)
   }
@@ -75,6 +88,8 @@ export default function(state = defaultOrder, action) {
     case GET_CART:
       return {...state, ...action.orderProducts}
     case GET_ORDERITEM:
+      return {...state, ...action.orderItems}
+    case UPDATE_CART:
       return {...state, ...action.orderItems}
     default:
       return state
