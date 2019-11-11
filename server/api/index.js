@@ -1,6 +1,16 @@
 const router = require('express').Router()
 const session = require('express-session')
 
+// const isAdminMiddleware = (req, res, next) => {
+//   const currentUser = req.user
+//   if (currentUser && currentUser.isAdmin) {
+//     next()
+//   } else {
+//   }
+//   const error = new Error('You are not authorized to perform that task!')
+//   error.status = 401
+//   next(error)
+
 module.exports = router
 
 router.use(

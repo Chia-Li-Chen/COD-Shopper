@@ -879,6 +879,7 @@ function (_Component) {
     key: "handleSubmit",
     value: function handleSubmit(event) {
       event.preventDefault();
+      this.props.addProductToCart(this.props.orderId, this.props.match.params.id, this.state.quantity);
       this.setState({
         quantity: ''
       });
@@ -922,7 +923,7 @@ function (_Component) {
           src: product.imageUrl,
           width: "150",
           height: "150"
-        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Name: ".concat(product.name)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Description: ".concat(product.description)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Price: $".concat(product.price / 100.0)));
+        }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Name: ".concat(product.name)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Description: ".concat(product.description)), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("td", null, "Price: $".concat(product.price / 100.00)));
       })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Quantity:", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         type: "integer",
         name: "quantity",
@@ -949,8 +950,8 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     fetchProduct: function fetchProduct(id) {
       return dispatch(Object(_store_product__WEBPACK_IMPORTED_MODULE_2__["fetchProduct"])(id));
     },
-    addToCart: function addToCart(orderId, productId) {
-      return dispatch(Object(_store_order__WEBPACK_IMPORTED_MODULE_3__["addToCart"])(orderId, productId));
+    addProductToCart: function addProductToCart(orderId, productId, quantity) {
+      return dispatch(Object(_store_order__WEBPACK_IMPORTED_MODULE_3__["addProductToCart"])(orderId, productId, quantity));
     }
   };
 };
@@ -1330,7 +1331,7 @@ socket.on('connect', function () {
 /*!*******************************!*\
   !*** ./client/store/index.js ***!
   \*******************************/
-/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, deleteProductFromCart, getCart, createCart, addToCart */
+/*! exports provided: default, me, auth, logout, addUser, fetchProducts, fetchProduct, deleteProductFromCart, getCart, createCart, addProductToCart */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1362,7 +1363,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["createCart"]; });
 
-/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["addToCart"]; });
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "addProductToCart", function() { return _order__WEBPACK_IMPORTED_MODULE_6__["addProductToCart"]; });
 
 
 
@@ -1391,7 +1392,7 @@ var store = Object(redux__WEBPACK_IMPORTED_MODULE_0__["createStore"])(reducer, m
 /*!*******************************!*\
   !*** ./client/store/order.js ***!
   \*******************************/
-/*! exports provided: deleteProductFromCart, getCart, createCart, addToCart, default */
+/*! exports provided: deleteProductFromCart, getCart, createCart, addProductToCart, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1399,7 +1400,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deleteProductFromCart", function() { return deleteProductFromCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCart", function() { return getCart; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createCart", function() { return createCart; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addToCart", function() { return addToCart; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "addProductToCart", function() { return addProductToCart; });
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 /* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -1418,23 +1419,23 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
  */
 
 var CREATE_CART = 'CREATE_CART';
-var ADD_TO_CART = 'ADD_TO_CART';
+var ADD_PRODUCT_TO_CART = 'ADD_PRODUCT_TO_CART';
 var GET_CART = 'GET_CART';
 var DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART';
 /**
  * INITIAL STATE
  */
+// const defaultOrder = {
+//   0: {
+//     totalPrice: 0,
+//     products: []
+//   }
+// }
 
-var defaultOrder = {
-  0: {
-    totalPrice: 0,
-    products: []
-  }
-  /**
-   * ACTION CREATORS
-   */
-
-};
+var defaultOrder = {};
+/**
+ * ACTION CREATORS
+ */
 
 var createCartAction = function createCartAction(totalPrice) {
   return {
@@ -1443,10 +1444,12 @@ var createCartAction = function createCartAction(totalPrice) {
   };
 };
 
-var addToCartAction = function addToCartAction(order) {
+var addToCartAction = function addToCartAction(orderId, productId, quantity) {
   return {
-    type: ADD_TO_CART,
-    order: order
+    type: ADD_PRODUCT_TO_CART,
+    orderId: orderId,
+    productId: productId,
+    quantity: quantity
   };
 };
 
@@ -1551,7 +1554,7 @@ var createCart = function createCart(userId) {
     }()
   );
 };
-var addToCart = function addToCart() {
+var addProductToCart = function addProductToCart(orderId, productId, quantity) {
   return (
     /*#__PURE__*/
     function () {
@@ -1565,7 +1568,11 @@ var addToCart = function addToCart() {
               case 0:
                 _context3.prev = 0;
                 _context3.next = 3;
-                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orderstoitems/');
+                return axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/api/orders/additem', {
+                  orderId: orderId,
+                  productId: productId,
+                  quantity: quantity
+                });
 
               case 3:
                 response = _context3.sent;
@@ -1605,7 +1612,7 @@ var addToCart = function addToCart() {
     case CREATE_CART:
       return _objectSpread({}, state, {}, action.totalPrice);
 
-    case ADD_TO_CART:
+    case ADD_PRODUCT_TO_CART:
       return _objectSpread({}, state, {}, action.product);
 
     case GET_CART:

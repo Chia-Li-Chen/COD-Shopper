@@ -4,26 +4,33 @@ import axios from 'axios'
  * ACTION TYPES
  */
 const CREATE_CART = 'CREATE_CART'
-const ADD_TO_CART = 'ADD_TO_CART'
+const ADD_PRODUCT_TO_CART = 'ADD_PRODUCT_TO_CART'
 const GET_CART = 'GET_CART'
 const DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART'
 
 /**
  * INITIAL STATE
  */
-const defaultOrder = {
-  0: {
-    totalPrice: 0,
-    products: []
-  }
-}
+// const defaultOrder = {
+//   0: {
+//     totalPrice: 0,
+//     products: []
+//   }
+// }
+
+const defaultOrder = {}
 
 /**
  * ACTION CREATORS
  */
 
 const createCartAction = totalPrice => ({type: CREATE_CART, totalPrice})
-const addToCartAction = order => ({type: ADD_TO_CART, order})
+const addToCartAction = (orderId, productId, quantity) => ({
+  type: ADD_PRODUCT_TO_CART,
+  orderId,
+  productId,
+  quantity
+})
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 export const deleteProductFromCart = id => ({
   type: DELETE_PRODUCT_FROM_CART,
@@ -51,9 +58,17 @@ export const createCart = userId => async dispatch => {
   }
 }
 
-export const addToCart = () => async dispatch => {
+export const addProductToCart = (
+  orderId,
+  productId,
+  quantity
+) => async dispatch => {
   try {
-    const response = await axios.post('/api/orderstoitems/')
+    const response = await axios.post('/api/orders/additem', {
+      orderId,
+      productId,
+      quantity
+    })
     dispatch(addToCartAction(response.data))
   } catch (err) {
     console.error(err)
@@ -68,7 +83,7 @@ export default function(state = defaultOrder, action) {
   switch (action.type) {
     case CREATE_CART:
       return {...state, ...action.totalPrice}
-    case ADD_TO_CART:
+    case ADD_PRODUCT_TO_CART:
       return {...state, ...action.product}
     case GET_CART:
       return {...state, ...action.orderProducts}

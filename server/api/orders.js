@@ -26,7 +26,7 @@ router.get('/:userId/getCart', async (req, res, next) => {
       }
     })
     if (existingCart) {
-      const orderProducts = await Order.findAll({
+      const orderProducts = await Order.findOne({
         where: {id: existingCart.id},
         include: [
           {
@@ -35,6 +35,7 @@ router.get('/:userId/getCart', async (req, res, next) => {
           }
         ]
       })
+      console.log('orderProducts', orderProducts)
       res.json(orderProducts)
     } else {
       res.status(404).send('No existing cart for this user.')
@@ -60,7 +61,7 @@ router.post('/', async (req, res, next) => {
 
 //Add product to order item table
 //Updating order with new total price
-router.post('/add', async (req, res, next) => {
+router.post('/additem', async (req, res, next) => {
   try {
     //gets any existing OrderItems that have the same product for this orderId
     const existingOrderToItem = await OrderToItem.findOne({
@@ -70,6 +71,7 @@ router.post('/add', async (req, res, next) => {
       }
     })
     let OrderToItemInstance = null
+    let orderWasCreated = false
 
     //Checks to see if the product is currently on this order
     if (existingOrderToItem) {
@@ -84,6 +86,7 @@ router.post('/add', async (req, res, next) => {
     } else {
       //Adds the product to the order with the quantity passed in
       OrderToItemInstance = await OrderToItem.create(req.body)
+      orderWasCreated = true
     }
 
     //Checks to see that the OrderToItem instance was either created or its quantity
@@ -91,7 +94,10 @@ router.post('/add', async (req, res, next) => {
     if (OrderToItemInstance) {
       //If it was we increase the total price by the new product's price
       //times the amount added
-      OrderToItemInstance = OrderToItemInstance[0][0][0]
+      console.log('OrderToItemInstance', OrderToItemInstance)
+      if (!orderWasCreated) {
+        OrderToItemInstance = OrderToItemInstance[0][0][0]
+      }
       const newProduct = await Product.findByPk(OrderToItemInstance.productId)
       const updatedOrder = await Order.increment('totalPrice', {
         by: newProduct.price * OrderToItemInstance.quantity,
