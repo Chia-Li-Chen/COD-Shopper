@@ -1200,7 +1200,7 @@ var mapState = function mapState(state) {
     user: state.user,
     email: state.user.email,
     userId: state.user.id,
-    orderSubmittedDate: state.order[0].orderSubmittedDate,
+    orderSubmittedDate: state.order.orderSubmittedDate,
     orderId: state.order.id,
     orders: state.order
   };
@@ -1549,16 +1549,10 @@ var UPDATE_CART = 'UPDATE_CART';
  * INITIAL STATE
  */
 
-var defaultOrder = {
-  0: {
-    totalPrice: 0,
-    products: []
-  }
-  /**
-   * ACTION CREATORS
-   */
-
-};
+var defaultOrder = {};
+/**
+ * ACTION CREATORS
+ */
 
 var createCartAction = function createCartAction(totalPrice) {
   return {
@@ -1833,10 +1827,8 @@ var addToCart = function addToCart() {
 
     case DELETE_PRODUCT_FROM_CART:
       return _objectSpread({}, state, {
-        0: _objectSpread({}, state[0], {
-          products: state[0].products.filter(function (item) {
-            return item.id !== action.itemId;
-          })
+        orderItems: state.orderItems.filter(function (product) {
+          return product.id !== action.itemId;
         })
       });
 
