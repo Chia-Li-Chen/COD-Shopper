@@ -7,6 +7,7 @@ const GET_ORDERITEM = 'GET_ORDERITEM'
 const UPDATE_ORDERITEM = 'UPDATE_ORDERITEM'
 const INCREASE_QUANTITY = 'INCREASE_QUANTITY'
 const DECREASE_QUANTITY = 'DECREASE_QUANTITY'
+const ADD_PRODUCT_TO_CART = 'ADD_PRODUCT_TO_CART'
 
 /**
  * INITIAL STATE
@@ -32,6 +33,11 @@ export const decreaseQuantityAction = orderItems => ({
   orderItems
 })
 
+const addToCartAction = orderItemInstance => ({
+  type: ADD_PRODUCT_TO_CART,
+  orderItemInstance
+})
+
 /**
  * THUNK CREATORS
  */
@@ -53,6 +59,24 @@ export const updateOrderItems = orderItem => async dispatch => {
       }/${orderItem.quantity}`
     )
     dispatch(updateOrderItemsAction(response.data))
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const addProductToCart = (
+  orderId,
+  productId,
+  quantity
+) => async dispatch => {
+  try {
+    // console.log('ORDER ID IS: ', orderId)
+    const response = await axios.post('/api/orders/additem', {
+      orderId,
+      productId,
+      quantity
+    })
+    dispatch(addToCartAction(response.data))
   } catch (err) {
     console.error(err)
   }
@@ -101,6 +125,8 @@ export default function(state = defaultOrderItem, action) {
       })
       return [...state, updatedOrderItem]
     }
+    case ADD_PRODUCT_TO_CART:
+      return state
     default:
       return state
   }
