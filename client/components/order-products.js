@@ -5,22 +5,14 @@ import {
   updateCart,
   getOrderItem,
   updateOrderItems,
-  increaseQuantityAction,
-  decreaseQuantityAction
+  increaseQuantity,
+  decreaseQuantity
 } from '../store'
 
 class OrderProducts extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      totalPrice: this.props.order[0].totalPrice,
-      products: this.props.order[0].products,
-      showTotalPrice: this.props.order[0].totalPrice,
-      orderItems: [...this.props.orderItems],
-      orders: this.props.order
-    }
     this.handleSubmit = this.handleSubmit.bind(this)
-    this.calcTotalPrice = this.calcTotalPrice.bind(this)
     this.getQuantity = this.getQuantity.bind(this)
   }
 
@@ -31,24 +23,11 @@ class OrderProducts extends Component {
   handleSubmit(event) {
     event.preventDefault()
     let order = {
-      id: this.state.orders[0].id,
-      totalPrice: this.state.showTotalPrice
+      id: this.props.order[0].id,
+      totalPrice: this.props.order.totalPrice
     }
     this.props.updateCart(order)
-    for (let i = 0; i < this.state.orderItems.length; i++) {
-      this.props.updateOrderItems(this.state.orderItems[i])
-    }
-  }
-
-  calcTotalPrice() {
-    let totalPriceShown = this.props.order[0].products.reduce(
-      (acc, product) => {
-        let subtotal = product.price * this.getQuantity(product.id)
-        return acc + subtotal
-      },
-      0
-    )
-    this.setState({showTotalPrice: totalPriceShown})
+    this.props.updateOrderItems(this.props.orderItems)
   }
 
   getQuantity(productId) {
@@ -63,7 +42,7 @@ class OrderProducts extends Component {
       return (
         <form onSubmit={this.handleSubmit}>
           <div>
-            <h5>Total Price: ${this.state.showTotalPrice / 100} </h5>
+            <h5>Total Price: ${this.props.order.totalPrice / 100} </h5>
             <button type="submit" className="save">
               Save
             </button>
@@ -149,10 +128,8 @@ const mapDispatchToProps = dispatch => {
     updateCart: state => dispatch(updateCart(state)),
     getOrderItem: id => dispatch(getOrderItem(id)),
     updateOrderItems: state => dispatch(updateOrderItems(state)),
-    increaseQuantity: productItem =>
-      dispatch(increaseQuantityAction(productItem)),
-    decreaseQuantity: productItem =>
-      dispatch(decreaseQuantityAction(productItem))
+    increaseQuantity: productItem => dispatch(increaseQuantity(productItem)),
+    decreaseQuantity: productItem => dispatch(decreaseQuantity(productItem))
   }
 }
 const ConnectedOrderProducts = connect(mapStateToProps, mapDispatchToProps)(

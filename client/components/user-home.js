@@ -20,8 +20,6 @@ class UserHome extends React.Component {
   }
 
   deleteProductHandler(evt) {
-    console.log('BEFORE DELETE PRODUCTID', evt.currentTarget.value)
-    console.log('BEFORE DELETE ORDERID', this.props.orders[0].id)
     this.props.deleteProduct(
       Number(evt.currentTarget.value),
       this.props.orders[0].id
