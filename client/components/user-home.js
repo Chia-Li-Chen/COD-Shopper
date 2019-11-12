@@ -14,8 +14,13 @@ class UserHome extends React.Component {
   }
   async componentDidMount() {
     await this.props.getCart(this.props.userId)
-    if (this.props.orders[0].orderSubmittedDate !== null) {
-      await this.props.createCart(this.props.userId)
+    if (this.props.orders[0]) {
+      if (
+        this.props.orders[0].orderSubmittedDate !== null ||
+        this.props.orders[0].orderSubmittedDate
+      ) {
+        await this.props.createCart(this.props.userId)
+      }
     }
   }
 

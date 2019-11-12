@@ -72,8 +72,8 @@ export default function(state = defaultOrderItem, action) {
   console.log('state.orderItem: ', state)
   console.log('state.orderItem: ', state)
   switch (action.type) {
-    // case GET_ORDERITEM:
-    //   return [...state, ...action.orderItems]
+    case GET_ORDERITEM:
+      return [...state, ...action.orderItems]
     case UPDATE_ORDERITEM: {
       const updatedOrderItem = state.map(orderItem => {
         if (

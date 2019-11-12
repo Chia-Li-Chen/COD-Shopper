@@ -21,8 +21,8 @@ router.get('/:userId/getCart', async (req, res, next) => {
   try {
     let existingCart = await Order.findOne({
       where: {
-        userId: req.params.userId,
-        orderSubmittedDate: null
+        userId: req.params.userId
+        // orderSubmittedDate: null
       }
     })
     if (existingCart) {
