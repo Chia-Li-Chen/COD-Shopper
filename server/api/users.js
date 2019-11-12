@@ -2,6 +2,17 @@ const router = require('express').Router()
 const {User} = require('../db/models/models_index')
 module.exports = router
 
+const isAdminMiddleware = (req, res, next) => {
+  const currentUser = req.user
+  if (currentUser && currentUser.isAdmin) {
+    next()
+  } else {
+    const error = new Error('Unauthorized')
+    error.status = 401
+    next(error)
+  }
+}
+
 router.get('/', async (req, res, next) => {
   try {
     const users = await User.findAll({
@@ -17,7 +28,7 @@ router.get('/', async (req, res, next) => {
 })
 
 //ONK - Route to add new users to the database from create-account form
-router.post('/add', async (req, res, next) => {
+router.post('/add', isAdminMiddleware, async (req, res, next) => {
   try {
     const newUser = await User.create(req.body)
     res.json(newUser)
