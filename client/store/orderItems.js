@@ -52,12 +52,17 @@ export const updateOrderItems = orderItem => async dispatch => {
   }
 }
 
-export const addProductToCart = orderId => async dispatch => {
+export const addProductToCart = (
+  orderId,
+  productId,
+  quantity
+) => async dispatch => {
   try {
+    console.log('ORDER ID IS: ', orderId)
     const response = await axios.post('/api/orders/additem', {
-      orderId,
-      productId,
-      quantity
+      orderId: orderId,
+      productId: productId,
+      quantity: quantity
     })
     dispatch(addToCartAction(response.data))
   } catch (err) {
@@ -69,8 +74,8 @@ export const addProductToCart = orderId => async dispatch => {
  */
 export default function(state = defaultOrderItem, action) {
   Object.freeze(state)
-  console.log('state.orderItem: ', state)
-  console.log('state.orderItem: ', state)
+  // console.log('state.orderItem: ', state)
+  // console.log('state.orderItem: ', state)
   switch (action.type) {
     case GET_ORDERITEM:
       return [...state, ...action.orderItems]
@@ -88,7 +93,9 @@ export default function(state = defaultOrderItem, action) {
       return [...state, updatedOrderItem]
     }
     case ADD_PRODUCT_TO_CART:
-      return {...state, ...action.product}
+      const newState = [...state]
+      newState.push(action.orderItemInstance)
+      return state
     default:
       return state
   }

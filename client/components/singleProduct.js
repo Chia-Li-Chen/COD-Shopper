@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {fetchProduct} from '../store/product'
-import {addProductToCart} from '../store/orderItems'
+import {createCart, getCart, addProductToCart} from '../store'
 
 class SingleProduct extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ class SingleProduct extends Component {
   handleSubmit(event) {
     event.preventDefault()
     this.props.addProductToCart(
-      this.props.orderId,
+      this.props.orders[0].id,
       this.props.match.params.id,
       this.state.quantity
     )
@@ -34,6 +34,17 @@ class SingleProduct extends Component {
 
   async componentDidMount() {
     await this.props.fetchProduct(this.props.match.params.id)
+    if (this.props.user.id) {
+      await this.props.getCart(this.props.userId)
+      if (this.props.orders[0]) {
+        if (
+          this.props.orders[0].orderSubmittedDate !== null ||
+          this.props.orders[0].orderSubmittedDate
+        ) {
+          await this.props.createCart(this.props.userId)
+        }
+      }
+    }
   }
 
   render() {
@@ -59,7 +70,9 @@ class SingleProduct extends Component {
               value={this.state.quantity}
             />
           </label>
-          <button type="submit">Add to Cart</button>
+          <form onSubmit={this.handleSubmit}>
+            <button type="submit">Add to Cart</button>
+          </form>
         </div>
       </table>
     )
@@ -68,13 +81,20 @@ class SingleProduct extends Component {
 
 const mapStateToProps = state => ({
   products: state.products,
-  orderId: state.orderId
+  user: state.user,
+  email: state.user.email,
+  userId: state.user.id,
+  orders: state.order
 })
 
 const mapDispatchToProps = dispatch => ({
   fetchProduct: id => dispatch(fetchProduct(id)),
   addProductToCart: (orderId, productId, quantity) =>
-    dispatch(addProductToCart(orderId, productId, quantity))
+    dispatch(addProductToCart(orderId, productId, quantity)),
+  getCart: id => dispatch(getCart(id)),
+  createCart: id => dispatch(createCart(id)),
+  deleteProduct: (productId, orderId) =>
+    dispatch(deleteProductFromCart(productId, orderId))
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(SingleProduct)

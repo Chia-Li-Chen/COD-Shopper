@@ -1,5 +1,6 @@
 const router = require('express').Router()
-const User = require('../db/models/user')
+const User = require('../db/models/models_index')
+const Order = require('../db/models/models_index')
 module.exports = router
 
 router.post('/login', async (req, res, next) => {
@@ -13,6 +14,26 @@ router.post('/login', async (req, res, next) => {
       res.status(401).send('Wrong username and/or password')
     } else {
       req.login(user, err => (err ? next(err) : res.json(user)))
+      // let existingCart = await Order.findOne({
+      //   where: {
+      //     userId: req.params.userId,
+      //     orderSubmittedDate: null
+      //   }
+      // })
+      // if (existingCart) {
+      //   const orderProducts = await Order.findAll({
+      //     where: { id: existingCart.id },
+      //     include: [
+      //       {
+      //         model: Product,
+      //         through: { where: { orderId: existingCart.id } }
+      //       }
+      //     ]
+      //   })
+      //   res.json(orderProducts)
+      // } else {
+
+      // }
     }
   } catch (err) {
     next(err)

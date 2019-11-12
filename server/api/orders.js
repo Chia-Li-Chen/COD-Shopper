@@ -21,8 +21,8 @@ router.get('/:userId/getCart', async (req, res, next) => {
   try {
     let existingCart = await Order.findOne({
       where: {
-        userId: req.params.userId
-        // orderSubmittedDate: null
+        userId: req.params.userId,
+        orderSubmittedDate: null
       }
     })
     if (existingCart) {
@@ -127,6 +127,7 @@ router.put(
 //Updating order with new total price
 router.post('/additem', async (req, res, next) => {
   try {
+    console.log('the body is: ', req.body)
     //gets any existing OrderItems that have the same product for this orderId
     const existingOrderToItem = await OrderToItem.findOne({
       where: {

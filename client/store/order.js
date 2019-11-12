@@ -69,14 +69,14 @@ export const createCart = userId => async dispatch => {
   }
 }
 
-export const addToCart = () => async dispatch => {
-  try {
-    const response = await axios.post('/api/orderstoitems/')
-    dispatch(addToCartAction(response.data))
-  } catch (err) {
-    console.error(err)
-  }
-}
+// export const addToCart = () => async dispatch => {
+//   try {
+//     const response = await axios.post('/api/orderstoitems/')
+//     dispatch(addToCartAction(response.data))
+//   } catch (err) {
+//     console.error(err)
+//   }
+// }
 
 export const deleteProductFromCart = (productId, orderId) => async dispatch => {
   try {
