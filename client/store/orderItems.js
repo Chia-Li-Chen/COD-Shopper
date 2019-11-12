@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {updateTotalPrice} from './order'
 
 /*
  * ACTION TYPES
@@ -51,14 +52,18 @@ export const getOrderItem = orderId => async dispatch => {
   }
 }
 
-export const updateOrderItems = orderItem => async dispatch => {
+export const updateOrderItems = orderItems => async dispatch => {
+  const newOrderItems = []
   try {
-    const response = await axios.put(
-      `/api/orders/updateOrderItems/${orderItem.orderId}/${
-        orderItem.productId
-      }/${orderItem.quantity}`
-    )
-    dispatch(updateOrderItemsAction(response.data))
+    for (let i = 0; i < orderItems.length; i++) {
+      const eaOrderItem = await axios.put(
+        `/api/orders/updateOrderItems/${orderItems[i].orderId}/${
+          orderItems[i].productId
+        }/${orderItems[i].quantity}`
+      )
+      newOrderItems.push(...eaOrderItem.data)
+    }
+    dispatch(updateOrderItemsAction(newOrderItems))
   } catch (err) {
     console.error(err)
   }
@@ -70,7 +75,6 @@ export const addProductToCart = (
   quantity
 ) => async dispatch => {
   try {
-    // console.log('ORDER ID IS: ', orderId)
     const response = await axios.post('/api/orders/additem', {
       orderId,
       productId,
@@ -81,9 +85,21 @@ export const addProductToCart = (
     console.error(err)
   }
 }
+
+export const increaseQuantity = productId => dispatch => {
+  dispatch(increaseQuantityAction(productId))
+  dispatch(updateTotalPrice())
+}
+
+export const decreaseQuantity = productId => dispatch => {
+  dispatch(decreaseQuantityAction(productId))
+  dispatch(updateTotalPrice())
+}
+
 /**
  * REDUCER
  */
+
 export default function(state = defaultOrderItem, action) {
   Object.freeze(state)
   switch (action.type) {
@@ -103,7 +119,7 @@ export default function(state = defaultOrderItem, action) {
       return state.map(orderItem => {
         if (
           orderItem.productId === action.orderItems &&
-          orderItem.quantity > 0
+          orderItem.quantity > 1
         ) {
           return {...orderItem, quantity: orderItem.quantity - 1}
         } else {
@@ -113,17 +129,7 @@ export default function(state = defaultOrderItem, action) {
     }
 
     case UPDATE_ORDERITEM: {
-      const updatedOrderItem = state.map(orderItem => {
-        if (
-          orderItem.orderId === action.orderItems.orderId &&
-          orderItem.productId === action.orderItems.productId
-        ) {
-          return action.orderItem
-        } else {
-          return orderItem
-        }
-      })
-      return [...state, updatedOrderItem]
+      return [...action.orderItems]
     }
     case ADD_PRODUCT_TO_CART:
       return state
