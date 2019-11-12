@@ -5,7 +5,6 @@ import {runInContext} from 'vm'
  * ACTION TYPES
  */
 const CREATE_CART = 'CREATE_CART'
-// const ADD_TO_CART = 'ADD_TO_CART'
 const GET_CART = 'GET_CART'
 const DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART'
 const GET_ORDERITEM = 'GET_ORDERITEM'
@@ -27,7 +26,6 @@ const defaultOrder = {
  */
 
 const createCartAction = totalPrice => ({type: CREATE_CART, totalPrice})
-// const addToCartAction = order => ({ type: ADD_TO_CART, order })
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
 const updateCartAction = order => ({type: UPDATE_CART, order})
@@ -35,7 +33,7 @@ const deleteProductFromCartAction = deletedItem => ({
   type: DELETE_PRODUCT_FROM_CART,
   deletedItem
 })
-export const updateTotalPrice = totalPrice => ({
+export const updateTotalPriceAction = totalPrice => ({
   type: UPDATE_TOTAL_PRICE,
   totalPrice
 })
@@ -43,9 +41,21 @@ export const updateTotalPrice = totalPrice => ({
  * THUNK CREATORS
  */
 
+export const updateTotalPrice = () => (dispatch, getState) => {
+  const {orderItem, order} = getState()
+
+  let totalPrice = order[0].products.reduce((acc, product) => {
+    let newQuantity = orderItem
+      .filter(eaOrderItem => eaOrderItem.productId === product.id)
+      .map(eaOrderItem => eaOrderItem.quantity)[0]
+    let subtotal = product.price * newQuantity
+    return acc + subtotal
+  }, 0)
+  dispatch(updateTotalPriceAction(totalPrice))
+}
+
 export const getCart = userId => async dispatch => {
   try {
-    // console.log('userId>>>>', userId)
     const response = await axios.get(`/api/orders/${userId}/getCart`)
     dispatch(getCartAction(response.data))
   } catch (err) {
@@ -82,15 +92,6 @@ export const createCart = userId => async dispatch => {
   }
 }
 
-// export const addToCart = () => async dispatch => {
-//   try {
-//     const response = await axios.post('/api/orderstoitems/')
-//     dispatch(addToCartAction(response.data))
-//   } catch (err) {
-//     console.error(err)
-//   }
-// }
-
 export const deleteProductFromCart = (productId, orderId) => async dispatch => {
   try {
     console.log('in ACTION, productID: ', productId, 'orderId: ', orderId)
@@ -114,14 +115,17 @@ export default function(state = defaultOrder, action) {
   switch (action.type) {
     case CREATE_CART:
       return {...state, ...action.totalPrice}
-    // case ADD_TO_CART:
-    //   return { ...state, ...action.product }
     case GET_CART:
-      return {...state, ...action.orderProducts}
+      return {
+        ...state,
+        ...action.orderProducts,
+        totalPrice: action.orderProducts[0].totalPrice
+      }
     case DELETE_PRODUCT_FROM_CART:
       return {0: {...state[0], deleted: action.deletedItem}}
     case UPDATE_TOTAL_PRICE:
       return {...state, totalPrice: action.totalPrice}
+
     default:
       return state
   }
