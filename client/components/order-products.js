@@ -1,7 +1,13 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
-import {updateCart, getOrderItem, updateOrderItems} from '../store'
+import {
+  updateCart,
+  getOrderItem,
+  updateOrderItems,
+  increaseQuantityAction,
+  decreaseQuantityAction
+} from '../store'
 
 class OrderProducts extends Component {
   constructor(props) {
@@ -15,8 +21,6 @@ class OrderProducts extends Component {
     }
     this.handleSubmit = this.handleSubmit.bind(this)
     this.calcTotalPrice = this.calcTotalPrice.bind(this)
-    this.increment = this.increment.bind(this)
-    this.decrement = this.decrement.bind(this)
     this.getQuantity = this.getQuantity.bind(this)
   }
 
@@ -24,7 +28,7 @@ class OrderProducts extends Component {
     await this.props.getOrderItem(this.props.order[0].id)
   }
 
-  async handleSubmit(event) {
+  handleSubmit(event) {
     event.preventDefault()
     let order = {
       id: this.state.orders[0].id,
@@ -34,59 +38,17 @@ class OrderProducts extends Component {
     for (let i = 0; i < this.state.orderItems.length; i++) {
       this.props.updateOrderItems(this.state.orderItems[i])
     }
-    await this.props.getOrderItem(this.props.order[0].id)
   }
 
   calcTotalPrice() {
-    let totalPriceShown = this.state.products.reduce((acc, product) => {
-      let subtotal = product.price * this.getQuantity(product.id)
-      return acc + subtotal
-    }, 0)
+    let totalPriceShown = this.props.order[0].products.reduce(
+      (acc, product) => {
+        let subtotal = product.price * this.getQuantity(product.id)
+        return acc + subtotal
+      },
+      0
+    )
     this.setState({showTotalPrice: totalPriceShown})
-  }
-
-  increment(productId) {
-    let productToUpdate = this.state.products.filter(
-      product => product.id === productId
-    )
-
-    let quantity = this.getQuantity(productId)
-    let price = productToUpdate[0].price
-
-    quantity = quantity + 1
-
-    price = price * quantity
-    let newOrderItems = this.props.orderItems.map(orderitem => {
-      if (orderitem.productId === productId) {
-        orderitem.quantity = quantity
-      }
-      return orderitem
-    })
-    this.setState({orderItems: newOrderItems})
-
-    this.calcTotalPrice()
-  }
-
-  decrement(productId) {
-    let productToUpdate = this.state.products.filter(
-      product => product.id === productId
-    )
-
-    let quantity = this.getQuantity(productId)
-
-    let price = productToUpdate[0].price
-    if (quantity > 0) {
-      quantity = quantity - 1
-    }
-    price = price * quantity
-    let newOrderItems = this.props.orderItems.map(orderitem => {
-      if (orderitem.productId === productId) {
-        orderitem.quantity = quantity
-      }
-      return orderitem
-    })
-    this.setState({orderItems: newOrderItems})
-    this.calcTotalPrice()
   }
 
   getQuantity(productId) {
@@ -106,7 +68,7 @@ class OrderProducts extends Component {
               Save
             </button>
             <ul>
-              {this.state.products.map(product => (
+              {this.props.order[0].products.map(product => (
                 <li key={product.id}>
                   <div className="productItem">
                     <div className="productImage">
@@ -138,18 +100,20 @@ class OrderProducts extends Component {
                           type="button"
                           name="decrease"
                           value="-"
-                          onClick={() => {
-                            this.decrement(product.id)
-                          }}
+                          onClick={() =>
+                            this.props.decreaseQuantity(product.id)
+                          }
                         />
-                        <input
+                        <button
                           type="button"
                           name="increase"
-                          value="+"
-                          onClick={() => {
-                            this.increment(product.id)
-                          }}
-                        />
+                          value={product.id}
+                          onClick={() =>
+                            this.props.increaseQuantity(product.id)
+                          }
+                        >
+                          +
+                        </button>
                       </div>
                     </div>
                     <div className="productPrice">
@@ -184,7 +148,11 @@ const mapDispatchToProps = dispatch => {
   return {
     updateCart: state => dispatch(updateCart(state)),
     getOrderItem: id => dispatch(getOrderItem(id)),
-    updateOrderItems: state => dispatch(updateOrderItems(state))
+    updateOrderItems: state => dispatch(updateOrderItems(state)),
+    increaseQuantity: productItem =>
+      dispatch(increaseQuantityAction(productItem)),
+    decreaseQuantity: productItem =>
+      dispatch(decreaseQuantityAction(productItem))
   }
 }
 const ConnectedOrderProducts = connect(mapStateToProps, mapDispatchToProps)(
