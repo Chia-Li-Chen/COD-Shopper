@@ -8,7 +8,7 @@ module.exports = router
 const isCurrentUserMiddleware = (req, res, next) => {
   const currentUser = req.user
   if (currentUser) {
-    //   if (currentUser && currentUser.isAdmin) {
+    // if (currentUser && currentUser.isAdmin) {
     next()
   } else {
     const error = new Error('Unauthorized')
@@ -19,7 +19,9 @@ const isCurrentUserMiddleware = (req, res, next) => {
 
 router.get('/', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    const orders = await Order.findAll()
+    const orders = await Order.findAll({
+      attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId']
+    })
     if (orders) {
       res.json(orders)
     } else {
@@ -36,6 +38,7 @@ router.get(
   async (req, res, next) => {
     try {
       let existingCart = await Order.findOne({
+        attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId'],
         where: {
           userId: req.params.userId,
           orderSubmittedDate: null
@@ -43,6 +46,7 @@ router.get(
       })
       if (existingCart) {
         const orderProducts = await Order.findAll({
+          attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId'],
           where: {id: existingCart.id},
           include: [
             {
@@ -64,7 +68,8 @@ router.get(
 //Create new order
 router.post('/', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    const newOrder = await Order.create({...req.body, totalPrice: 0})
+    const newOrder = await Order.create({totalPrice: 0})
+    // const newOrder = await Order.create({ ...req.body, totalPrice: 0 })
     if (newOrder) {
       res.json({total: newOrder.totalPrice})
     } else {
@@ -103,8 +108,9 @@ router.get(
   isCurrentUserMiddleware,
   async (req, res, next) => {
     try {
-      console.log('<<<<<<req.body: ', req.body)
+      // console.log('<<<<<<req.body: ', req.body)
       const orderItems = await OrderToItem.findAll({
+        attributes: ['quantity', 'productId', 'orderId'],
         where: {
           orderId: req.params.orderId
         }
@@ -122,12 +128,12 @@ router.put(
   isCurrentUserMiddleware,
   async (req, res, next) => {
     try {
-      console.log(
-        '>>>>>>>params: ',
-        req.params.orderId,
-        req.params.productId,
-        req.params.quantity
-      )
+      // console.log(
+      //   '>>>>>>>params: ',
+      //   req.params.orderId,
+      //   req.params.productId,
+      //   req.params.quantity
+      // )
       const [numOfUpdates, updatedOrderItems] = await OrderToItem.update(
         {quantity: req.params.quantity},
         {
@@ -153,7 +159,7 @@ router.put(
 //Updating order with new total price
 router.post('/additem', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    console.log('the body is: ', req.body)
+    // console.log('the body is: ', req.body)
     //gets any existing OrderItems that have the same product for this orderId
     const existingOrderToItem = await OrderToItem.findOne({
       where: {
@@ -176,7 +182,12 @@ router.post('/additem', isCurrentUserMiddleware, async (req, res, next) => {
       })
     } else {
       //Adds the product to the order with the quantity passed in
-      OrderToItemInstance = await OrderToItem.create(req.body)
+      OrderToItemInstance = await OrderToItem.create({
+        quantity: req.body.quantity,
+        productId: req.body.productId,
+        orderId: req.body.orderId
+      })
+      // OrderToItemInstance = await OrderToItem.create(req.body)
       orderWasCreated = true
     }
 

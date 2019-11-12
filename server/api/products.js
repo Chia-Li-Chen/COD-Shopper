@@ -16,7 +16,10 @@ const isAdminMiddleware = (req, res, next) => {
 
 router.get('/', async (req, res, next) => {
   try {
-    const products = await Product.findAll()
+    const products = await Product.findAll({
+      attributes: ['id', 'name', 'imageUrl', 'price', 'description']
+    })
+
     res.json(products)
   } catch (err) {
     next(err)
@@ -26,6 +29,7 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const singleProduct = await Product.findAll({
+      attributes: ['id', 'name', 'imageUrl', 'price', 'description'],
       where: {
         id: req.params.id
       }
@@ -47,7 +51,7 @@ router.get(
   isAdminMiddleware,
   async (req, res, next) => {
     try {
-      console.log('The req params is', req.params, 'the body is', req.body)
+      // console.log('The req params is', req.params, 'the body is', req.body)
       const orderProducts = await Order.findAll({
         where: {id: req.params.orderId},
         include: [

@@ -30,7 +30,13 @@ router.get('/', async (req, res, next) => {
 //ONK - Route to add new users to the database from create-account form
 router.post('/add', isAdminMiddleware, async (req, res, next) => {
   try {
-    const newUser = await User.create(req.body)
+    const newUser = await User.create({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+      password: req.body.password
+    })
     res.json(newUser)
   } catch (err) {
     next(err)
