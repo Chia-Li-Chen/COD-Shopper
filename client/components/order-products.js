@@ -46,6 +46,9 @@ class OrderProducts extends Component {
             <button type="submit" className="save">
               Save
             </button>
+            <button type="submit" className="submit">
+              Submit
+            </button>
             <ul>
               {this.props.order[0].products.map(product => (
                 <li key={product.id}>
@@ -83,16 +86,14 @@ class OrderProducts extends Component {
                             this.props.decreaseQuantity(product.id)
                           }
                         />
-                        <button
+                        <input
                           type="button"
                           name="increase"
-                          value={product.id}
+                          value="+"
                           onClick={() =>
                             this.props.increaseQuantity(product.id)
                           }
-                        >
-                          +
-                        </button>
+                        />
                       </div>
                     </div>
                     <div className="productPrice">
