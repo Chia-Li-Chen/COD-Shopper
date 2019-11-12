@@ -1,0 +1,21 @@
+body {
+  background-color: rgba(0, 41, 58);
+  color: white;
+}
+
+input {
+  color: white;
+}
+nav {
+  background-color: rgb(255, 140, 0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+nav > * {
+  padding: 2em;
+}
+
+.logo {
+}
