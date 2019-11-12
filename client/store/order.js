@@ -10,6 +10,7 @@ const GET_CART = 'GET_CART'
 const DELETE_PRODUCT_FROM_CART = 'DELETE_PRODUCT_FROM_CART'
 const GET_ORDERITEM = 'GET_ORDERITEM'
 const UPDATE_CART = 'UPDATE_CART'
+const UPDATE_TOTAL_PRICE = 'UPDATE_TOTAL_PRICE'
 
 /**
  * INITIAL STATE
@@ -33,6 +34,10 @@ const updateCartAction = order => ({type: UPDATE_CART, order})
 const deleteProductFromCartAction = deletedItem => ({
   type: DELETE_PRODUCT_FROM_CART,
   deletedItem
+})
+export const updateTotalPrice = totalPrice => ({
+  type: UPDATE_TOTAL_PRICE,
+  totalPrice
 })
 /**
  * THUNK CREATORS
@@ -114,10 +119,8 @@ export default function(state = defaultOrder, action) {
       return {...state, ...action.orderProducts}
     case DELETE_PRODUCT_FROM_CART:
       return {0: {...state[0], deleted: action.deletedItem}}
-    // case GET_ORDERITEM:
-    //   return {...state, ...action.orderItems}
-    // case UPDATE_CART:
-    //   return {...state, ...action.orderItems}
+    case UPDATE_TOTAL_PRICE:
+      return {...state, totalPrice: action.totalPrice}
     default:
       return state
   }
