@@ -1,10 +1,8 @@
 body {
-  background-color: rgba(0, 41, 58);
-  color: white;
+  background-color: white;
 }
 
 input {
-  color: white;
 }
 
 nav {
@@ -15,4 +13,10 @@ nav {
 }
 
 .logo {
+  height: 30px;
+  top: 10px;
+}
+
+.home-page-body > * {
+  margin: 0 auto;
 }
