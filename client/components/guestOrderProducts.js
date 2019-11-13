@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
-import {Link} from 'react-router-dom'
+import {Link, withRouter} from 'react-router-dom'
 import {
   updateCart,
   getOrderItem,
@@ -50,6 +50,10 @@ class GuestOrderProducts extends Component {
       .filter(orderItem => orderItem.productId === productId)
       .map(orderItem => orderItem.quantity)[0]
     return quantity
+  }
+
+  componentDidUpdate() {
+    this.props.history.push('./home')
   }
 
   render() {
@@ -151,4 +155,4 @@ const ConnectedOrderProducts = connect(mapStateToProps, mapDispatchToProps)(
   GuestOrderProducts
 )
 
-export default ConnectedOrderProducts
+export default withRouter(ConnectedOrderProducts)
