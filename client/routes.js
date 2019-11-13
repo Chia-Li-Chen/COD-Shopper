@@ -9,7 +9,9 @@ import {
   UserHome,
   AllProducts,
   SingleProduct,
-  Cart
+  Cart,
+  HomePage,
+  GuestCart
 } from './components'
 import {me} from './store'
 
@@ -33,6 +35,7 @@ class Routes extends Component {
         <Route exact path="/login" component={Login} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/create-account" component={CreateAccount} />
+        <Route exact path="/guest-cart" component={GuestCart} />
         {/* Displays our Login component as a fallback */}
         {/* Will add switch for login */}
         {isLoggedIn && (
@@ -40,7 +43,7 @@ class Routes extends Component {
             <Route path="/home" component={UserHome} />
           </Switch>
         )}
-        <Route component={Login} />
+        <Route component={HomePage} />
       </Switch>
     )
   }

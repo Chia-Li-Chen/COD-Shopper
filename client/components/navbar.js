@@ -5,12 +5,19 @@ import {Link, Route} from 'react-router-dom'
 import {logout} from '../store'
 import AddUser from './create-account'
 import {AppBar, Toolbar} from '@material-ui/core'
+import logo from '../assets/images/fishicon.svg'
+import SVG from 'react-inlinesvg'
 
 const Navbar = ({handleClick, isLoggedIn}) => (
   <nav>
     <div className="nav-left">
       COD
-      <Link to="/home">Shopping Cart</Link>
+      <SVG className="logo" src={logo} />
+      {isLoggedIn ? (
+        <Link to="/home">Shopping Cart</Link>
+      ) : (
+        <Link to="/guest-cart">Shopping Cart</Link>
+      )}
       <Link to="/products"> See All Products</Link>
     </div>
     <div className="nav-right">

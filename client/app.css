@@ -15,4 +15,10 @@ nav {
 }
 
 .logo {
+  height: 30px;
+  top: 10px;
+}
+
+.home-page-body > * {
+  margin: 0 auto;
 }
