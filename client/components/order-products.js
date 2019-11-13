@@ -33,9 +33,10 @@ class OrderProducts extends Component {
     if (event.target.name === 'checkout') {
       event.preventDefault()
       console.log('<<<<<<<event checkout: ', event.target.name)
-      this.props.submitCart(order)
       this.props.updateCart(order)
       this.props.updateOrderItems(this.props.orderItems)
+      this.props.submitCart(order)
+      this.props.createCart(this.props.order[0].userId)
     } else if (event.target.name === 'save') {
       event.preventDefault()
       console.log('<<<<<<<event save: ', event.target.name)
