@@ -132,11 +132,13 @@ const orders = [
   {
     userId: 1,
     orderSubmittedDate: null,
+    orderDate: null,
     totalPrice: 19000
   },
   {
     userId: 2,
     orderSubmittedDate: null,
+    orderDate: null,
     totalPrice: 15000
   },
   {

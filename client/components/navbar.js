@@ -1,35 +1,38 @@
-import React from 'react'
+import React, {Fragment} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link, Route} from 'react-router-dom'
 import {logout} from '../store'
 import AddUser from './create-account'
+import {AppBar, Toolbar} from '@material-ui/core'
+import logo from '../assets/images/fishicon.svg'
+import SVG from 'react-inlinesvg'
 
 const Navbar = ({handleClick, isLoggedIn}) => (
-  <div>
-    <h1>COD</h1>
-    <nav>
+  <nav>
+    <div className="nav-left">
+      COD
+      <SVG className="logo" src={logo} />
       {isLoggedIn ? (
-        <div>
-          {/* The navbar will show these links after you log in */}
-          <Link to="/home">Shopping Cart</Link>
-          <a href="#" onClick={handleClick}>
-            Logout
-          </a>
-          <Link to="/products"> See All Products</Link>
-        </div>
+        <Link to="/home">Shopping Cart</Link>
       ) : (
-        <div>
-          {/* The navbar will show these links before you log in */}
+        <Link to="/guest-cart">Shopping Cart</Link>
+      )}
+      <Link to="/products"> See All Products</Link>
+    </div>
+    <div className="nav-right">
+      {isLoggedIn ? (
+        <a href="#" onClick={handleClick}>
+          Logout
+        </a>
+      ) : (
+        <Fragment>
           <Link to="/login">Login</Link>
           <Link to="/create-account"> Create Account</Link>
-          <Link to="/products"> See All Products</Link>
-          {/* <Link to="/home">Shopping Cart</Link> */}
-        </div>
+        </Fragment>
       )}
-    </nav>
-    <hr />
-  </div>
+    </div>
+  </nav>
 )
 
 /**

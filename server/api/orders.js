@@ -2,12 +2,25 @@ const router = require('express').Router()
 const {Order} = require('../db/models/models_index')
 const {OrderToItem} = require('../db/models/models_index')
 const {Product} = require('../db/models/models_index')
-const sequelize = require('sequelize')
 module.exports = router
 
-router.get('/', async (req, res, next) => {
+const isCurrentUserMiddleware = (req, res, next) => {
+  const currentUser = req.user
+  if (currentUser) {
+    // if (currentUser && currentUser.isAdmin) {
+    next()
+  } else {
+    const error = new Error('Unauthorized')
+    error.status = 401
+    next(error)
+  }
+}
+
+router.get('/', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    const orders = await Order.findAll()
+    const orders = await Order.findAll({
+      attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId']
+    })
     if (orders) {
       res.json(orders)
     } else {
@@ -18,37 +31,44 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/:userId/getCart', async (req, res, next) => {
-  try {
-    let existingCart = await Order.findOne({
-      where: {
-        userId: req.params.userId,
-        orderSubmittedDate: null
-      }
-    })
-    if (existingCart) {
-      const orderProducts = await Order.findAll({
-        where: {id: existingCart.id},
-        include: [
-          {
-            model: Product,
-            through: {where: {orderId: existingCart.id}}
-          }
-        ]
+router.get(
+  '/:userId/getCart',
+  isCurrentUserMiddleware,
+  async (req, res, next) => {
+    try {
+      let existingCart = await Order.findOne({
+        attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId'],
+        where: {
+          userId: req.params.userId,
+          orderSubmittedDate: null
+        }
       })
-      res.json(orderProducts)
-    } else {
-      res.status(404).send('No existing cart for this user.')
+      if (existingCart) {
+        const orderProducts = await Order.findAll({
+          attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId'],
+          where: {id: existingCart.id},
+          include: [
+            {
+              model: Product,
+              through: {where: {orderId: existingCart.id}}
+            }
+          ]
+        })
+        res.json(orderProducts)
+      } else {
+        res.status(404).send('No existing cart for this user.')
+      }
+    } catch (err) {
+      next(err)
     }
-  } catch (err) {
-    next(err)
   }
-})
+)
 
 //Create new order
-router.post('/', async (req, res, next) => {
+router.post('/', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    const newOrder = await Order.create({...req.body, totalPrice: 0})
+    const newOrder = await Order.create({totalPrice: 0})
+    // const newOrder = await Order.create({ ...req.body, totalPrice: 0 })
     if (newOrder) {
       res.json({total: newOrder.totalPrice})
     } else {
@@ -59,30 +79,33 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-router.put('/updateOrder/:orderId/:totalPrice', async (req, res, next) => {
-  try {
-    const [numOfUpdates, updatedOrder] = await Order.update(
-      {totalPrice: req.params.totalPrice},
-      {
-        where: {id: req.params.orderId},
-        returning: true
+router.put(
+  '/updateOrder/:orderId/:totalPrice',
+  isCurrentUserMiddleware,
+  async (req, res, next) => {
+    try {
+      const [numOfUpdates, updatedOrder] = await Order.update(
+        {totalPrice: req.params.totalPrice},
+        {
+          where: {id: req.params.orderId},
+          returning: true
+        }
+      )
+      if (updatedOrder) {
+        res.json(updatedOrder[0].dataValues)
+      } else {
+        res.status(500).send('Not updated')
       }
-    )
-    if (updatedOrder) {
-      res.json(updatedOrder[0].dataValues)
-    } else {
-      res.status(500).send('Not updated')
+    } catch (error) {
+      next(error)
     }
-  } catch (error) {
-    next(error)
   }
-})
+)
 
 router.put('/submitOrder/:orderId', async (req, res, next) => {
   try {
-    console.log('<<<<<<<<are you here?: ', req.body)
     const time = Date.now()
-    console.log('<<<<<<<<are you here?: ', time)
+
     const [numOfUpdates, updatedOrder] = await Order.update(
       {orderSubmittedDate: time},
       {
@@ -115,16 +138,37 @@ router.get('/orderItems/:orderId', async (req, res, next) => {
   }
 })
 
-router.put(
-  '/updateOrderItems/:orderId/:productId/:quantity',
+router.get(
+  '/orderItems/:orderId',
+  isCurrentUserMiddleware,
   async (req, res, next) => {
     try {
-      console.log(
-        '>>>>>>>params: ',
-        req.params.orderId,
-        req.params.productId,
-        req.params.quantity
-      )
+      // console.log('<<<<<<req.body: ', req.body)
+      const orderItems = await OrderToItem.findAll({
+        attributes: ['quantity', 'productId', 'orderId'],
+        where: {
+          orderId: req.params.orderId
+        }
+      })
+      res.json(orderItems)
+    } catch (error) {
+      console.error(error)
+      next(error)
+    }
+  }
+)
+
+router.put(
+  '/updateOrderItems/:orderId/:productId/:quantity',
+  isCurrentUserMiddleware,
+  async (req, res, next) => {
+    try {
+      // console.log(
+      //   '>>>>>>>params: ',
+      //   req.params.orderId,
+      //   req.params.productId,
+      //   req.params.quantity
+      // )
       const [numOfUpdates, updatedOrderItems] = await OrderToItem.update(
         {quantity: req.params.quantity},
         {
@@ -148,9 +192,9 @@ router.put(
 
 //Add product to order item table
 //Updating order with new total price
-router.post('/additem', async (req, res, next) => {
+router.post('/additem', isCurrentUserMiddleware, async (req, res, next) => {
   try {
-    console.log('the body is: ', req.body)
+    // console.log('the body is: ', req.body)
     //gets any existing OrderItems that have the same product for this orderId
     const existingOrderToItem = await OrderToItem.findOne({
       where: {
@@ -173,7 +217,12 @@ router.post('/additem', async (req, res, next) => {
       })
     } else {
       //Adds the product to the order with the quantity passed in
-      OrderToItemInstance = await OrderToItem.create(req.body)
+      OrderToItemInstance = await OrderToItem.create({
+        quantity: req.body.quantity,
+        productId: req.body.productId,
+        orderId: req.body.orderId
+      })
+      // OrderToItemInstance = await OrderToItem.create(req.body)
       orderWasCreated = true
     }
 
@@ -205,20 +254,25 @@ router.post('/additem', async (req, res, next) => {
 
 //Deletes an ordertoitem record with the given id.
 //uses deleteitem path so it is not mistaken for deleting an entire cart.
-router.delete('/deleteitem', async (req, res, next) => {
-  try {
-    const deletedItem = await OrderToItem.destroy({
-      where: {
-        productId: req.body.productId,
-        orderId: req.body.orderId
+
+router.delete(
+  '/deleteitem',
+  isCurrentUserMiddleware,
+  async (req, res, next) => {
+    try {
+      const deletedItem = await OrderToItem.destroy({
+        where: {
+          productId: req.body.productId,
+          orderId: req.body.orderId
+        }
+      })
+      if (deletedItem) {
+        res.send('Item deleted')
+      } else {
+        res.status(500).send('Item failed to delete.')
       }
-    })
-    if (deletedItem) {
-      res.send('Item deleted')
-    } else {
-      res.status(500).send('Item failed to delete.')
+    } catch (err) {
+      next(err)
     }
-  } catch (err) {
-    next(err)
   }
-})
+)
