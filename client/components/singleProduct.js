@@ -27,7 +27,7 @@ class SingleProduct extends Component {
     this.props.addProductToCart(
       this.state.orderId,
       this.props.match.params.id,
-      this.state.quantity
+      Number(this.state.quantity)
     )
 
     this.setState({

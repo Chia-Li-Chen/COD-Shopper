@@ -14,7 +14,12 @@ class UserHome extends React.Component {
   }
   async componentDidMount() {
     await this.props.getCart(this.props.userId)
+    console.log('userID is', this.props.userId)
+  }
+
+  async componentDidUpdate() {
     if (this.props.orders[0].orderSubmittedDate !== null) {
+      console.log('ordersubmitted if hit, userId: ', this.props.userId)
       await this.props.createCart(this.props.userId)
     }
   }
@@ -37,6 +42,7 @@ class UserHome extends React.Component {
             <OrderProducts
               order={order}
               deleteProductHandler={this.deleteProductHandler}
+              createCart={this.props.createCart}
             />
           </div>
         </div>
