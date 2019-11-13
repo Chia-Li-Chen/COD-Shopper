@@ -16,21 +16,6 @@ const isCurrentUserMiddleware = (req, res, next) => {
   }
 }
 
-router.get('/', isCurrentUserMiddleware, async (req, res, next) => {
-  try {
-    const orders = await Order.findAll({
-      attributes: ['id', 'orderSubmittedDate', 'totalPrice', 'userId']
-    })
-    if (orders) {
-      res.json(orders)
-    } else {
-      res.status(404).send('Orders not found')
-    }
-  } catch (err) {
-    next(err)
-  }
-})
-
 router.get(
   '/:userId/getCart',
   isCurrentUserMiddleware,
