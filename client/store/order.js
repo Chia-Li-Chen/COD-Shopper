@@ -14,12 +14,7 @@ const UPDATE_TOTAL_PRICE = 'UPDATE_TOTAL_PRICE'
 /**
  * INITIAL STATE
  */
-const defaultOrder = {
-  0: {
-    totalPrice: 0,
-    products: []
-  }
-}
+const defaultOrder = {}
 
 /**
  * ACTION CREATORS

@@ -131,12 +131,12 @@ const users = [
 const orders = [
   {
     userId: 1,
-    orderSubmittedDate: Date.now() - 15,
+    orderDate: null,
     totalPrice: 19000
   },
   {
     userId: 2,
-    orderSubmittedDate: Date.now() - 14,
+    orderDate: null,
     totalPrice: 15000
   },
   {
