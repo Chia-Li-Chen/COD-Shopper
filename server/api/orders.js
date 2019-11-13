@@ -2,6 +2,7 @@ const router = require('express').Router()
 const {Order} = require('../db/models/models_index')
 const {OrderToItem} = require('../db/models/models_index')
 const {Product} = require('../db/models/models_index')
+const sequelize = require('sequelize')
 module.exports = router
 
 router.get('/', async (req, res, next) => {
@@ -62,6 +63,28 @@ router.put('/updateOrder/:orderId/:totalPrice', async (req, res, next) => {
   try {
     const [numOfUpdates, updatedOrder] = await Order.update(
       {totalPrice: req.params.totalPrice},
+      {
+        where: {id: req.params.orderId},
+        returning: true
+      }
+    )
+    if (updatedOrder) {
+      res.json(updatedOrder[0].dataValues)
+    } else {
+      res.status(500).send('Not updated')
+    }
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.put('/submitOrder/:orderId', async (req, res, next) => {
+  try {
+    console.log('<<<<<<<<are you here?: ', req.body)
+    const time = Date.now()
+    console.log('<<<<<<<<are you here?: ', time)
+    const [numOfUpdates, updatedOrder] = await Order.update(
+      {orderSubmittedDate: time},
       {
         where: {id: req.params.orderId},
         returning: true

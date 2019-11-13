@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
 import {
   updateCart,
+  submitCart,
   getOrderItem,
   updateOrderItems,
   increaseQuantity,
@@ -21,13 +22,26 @@ class OrderProducts extends Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault()
+    // if(event.MouseEvent.target.button === 'submit'){
+    //   console.log('<<<<<<<event: ', event, obj)
+    // }
+
     let order = {
       id: this.props.order[0].id,
       totalPrice: this.props.order.totalPrice
     }
-    this.props.updateCart(order)
-    this.props.updateOrderItems(this.props.orderItems)
+    if (event.target.name === 'checkout') {
+      event.preventDefault()
+      console.log('<<<<<<<event checkout: ', event.target.name)
+      this.props.submitCart(order)
+      this.props.updateCart(order)
+      this.props.updateOrderItems(this.props.orderItems)
+    } else if (event.target.name === 'save') {
+      event.preventDefault()
+      console.log('<<<<<<<event save: ', event.target.name)
+      this.props.updateCart(order)
+      this.props.updateOrderItems(this.props.orderItems)
+    }
   }
 
   getQuantity(productId) {
@@ -43,11 +57,21 @@ class OrderProducts extends Component {
         <form onSubmit={this.handleSubmit}>
           <div>
             <h5>Total Price: ${this.props.order.totalPrice / 100} </h5>
-            <button type="submit" className="save">
+            <button
+              type="submit"
+              name="save"
+              className="save"
+              onClick={event => this.handleSubmit(event)}
+            >
               Save
             </button>
-            <button type="submit" className="submit">
-              Submit
+            <button
+              type="submit"
+              name="checkout"
+              className="submit"
+              onClick={event => this.handleSubmit(event)}
+            >
+              Checkout
             </button>
             <ul>
               {this.props.order[0].products.map(product => (
@@ -130,7 +154,8 @@ const mapDispatchToProps = dispatch => {
     getOrderItem: id => dispatch(getOrderItem(id)),
     updateOrderItems: state => dispatch(updateOrderItems(state)),
     increaseQuantity: productItem => dispatch(increaseQuantity(productItem)),
-    decreaseQuantity: productItem => dispatch(decreaseQuantity(productItem))
+    decreaseQuantity: productItem => dispatch(decreaseQuantity(productItem)),
+    submitCart: state => dispatch(submitCart(state))
   }
 }
 const ConnectedOrderProducts = connect(mapStateToProps, mapDispatchToProps)(

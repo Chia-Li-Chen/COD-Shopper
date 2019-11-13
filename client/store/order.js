@@ -32,6 +32,7 @@ export const updateTotalPriceAction = totalPrice => ({
   type: UPDATE_TOTAL_PRICE,
   totalPrice
 })
+
 /**
  * THUNK CREATORS
  */
@@ -53,6 +54,14 @@ export const getCart = userId => async dispatch => {
   try {
     const response = await axios.get(`/api/orders/${userId}/getCart`)
     dispatch(getCartAction(response.data))
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+export const submitCart = order => async () => {
+  try {
+    await axios.put(`/api/orders/submitOrder/${order.id}`)
   } catch (err) {
     console.error(err)
   }
