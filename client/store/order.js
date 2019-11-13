@@ -29,9 +29,9 @@ const createCartAction = totalPrice => ({type: CREATE_CART, totalPrice})
 const getCartAction = orderProducts => ({type: GET_CART, orderProducts})
 const getOrderItemAction = orderItems => ({type: GET_ORDERITEM, orderItems})
 const updateCartAction = order => ({type: UPDATE_CART, order})
-const deleteProductFromCartAction = deletedItem => ({
+const deleteProductFromCartAction = productId => ({
   type: DELETE_PRODUCT_FROM_CART,
-  deletedItem
+  productId
 })
 export const updateTotalPriceAction = totalPrice => ({
   type: UPDATE_TOTAL_PRICE,
@@ -101,7 +101,7 @@ export const deleteProductFromCart = (productId, orderId) => async dispatch => {
         orderId: orderId
       }
     })
-    dispatch(deleteProductFromCartAction(response.data))
+    dispatch(deleteProductFromCartAction(productId))
   } catch (err) {
     console.error(err)
   }
@@ -122,7 +122,15 @@ export default function(state = defaultOrder, action) {
         totalPrice: action.orderProducts[0].totalPrice
       }
     case DELETE_PRODUCT_FROM_CART:
-      return {0: {...state[0], deleted: action.deletedItem}}
+      let newState = {
+        0: {
+          ...state[0],
+          products: state[0].products.filter(
+            product => product.id !== action.productId
+          )
+        }
+      }
+      return newState
     case UPDATE_TOTAL_PRICE:
       return {...state, totalPrice: action.totalPrice}
 
