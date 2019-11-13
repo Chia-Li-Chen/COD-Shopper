@@ -41,7 +41,7 @@ router.get(
         })
         res.json(orderProducts)
       } else {
-        res.status(404).send('No existing cart for this user.')
+        res.json([{id: -1, orderSubmittedDate: 'cart not found', products: []}])
       }
     } catch (err) {
       next(err)

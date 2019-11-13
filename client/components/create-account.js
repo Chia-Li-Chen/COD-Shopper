@@ -20,8 +20,7 @@ class AddUser extends Component {
 
   handleKey(event) {
     if (event.key === 'Enter') {
-      this.props.addUser(this.state)
-      this.setState(defaultState)
+      this.handleSubmit(event)
     }
   }
 
@@ -32,6 +31,7 @@ class AddUser extends Component {
     // } else {
     //   this.props.addUser(this.state)
     // }
+    this.props.addUser(this.state)
     this.setState(defaultState)
   }
 
@@ -76,7 +76,7 @@ class AddUser extends Component {
           />
         </div>
 
-        <button type="Submit">Add User</button>
+        <button type="submit">Add User</button>
       </form>
     )
   }
