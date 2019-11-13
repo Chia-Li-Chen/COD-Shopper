@@ -37,6 +37,7 @@ class UserHome extends React.Component {
             <OrderProducts
               order={order}
               deleteProductHandler={this.deleteProductHandler}
+              createCart={this.props.createCart}
             />
           </div>
         </div>
